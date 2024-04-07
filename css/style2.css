@@ -1,0 +1,40 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+
+body {
+    background: radial-gradient(ellipse at bottom, #0d1d31 0%, #0c0d13 100%);
+    font-size: 1em;
+    line-height: 1em;
+    font-family: Montserrat;
+    font-weight: 900;
+    
+  }
+
+.gradient-custom {
+    /* fallback for old browsers */
+    background: #112c5f;
+  
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: -webkit-linear-gradient(to right, rgba(17,44,95,1), rgba(12,27,54,1));
+  
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: linear-gradient(to right, rgba(17,44,95,1), rgba(12,27,54,1))
+}
+
+#canvas1 {
+    background: rgb(44, 44, 44);
+    position: fixed;
+}
+
+#controls {
+    position: absolute;
+    z-index: 100;
+    
+}
+
+img {
+    display: none;
+}

@@ -1,0 +1,268 @@
+/* Header */
+body{
+	background: linear-gradient(90deg, rgba(1,0,9,1) 0%, rgba(0,0,50,1) 100%);
+}
+
+.large-header {
+	position: flex;
+	width: 100%;
+	overflow: hidden;
+	/*background-size: cover;
+	background-position: center center;*/
+	z-index: 1;
+}
+
+.gradient-custom {
+    /* fallback for old browsers */
+    background: #112c5f;
+  
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: -webkit-linear-gradient(to right, rgba(17,44,95,1), rgba(12,27,54,1));
+  
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: linear-gradient(to right, rgba(17,44,95,1), rgba(12,27,54,1))
+  }
+
+.ml10 {
+position: flex;
+font-weight: 900;
+font-size: 4em;
+font-family: Montserrat;
+color: antiquewhite;
+}
+
+.ml10 .text-wrapper {
+position: relative;
+padding-right: 0.05em;
+padding-bottom: 0.1em;
+overflow: hidden;
+color: rgb(230,230,230);
+}
+
+.ml10 .letter {
+display: inline-block;
+line-height: 1em;
+transform-origin: 0 0;
+}
+
+/*.demo-1 .large-header {
+	background-image: url('../img/demo-1-bg.jpg');
+ background: radial-gradient(ellipse at bottom, #0d1d31 0%, #0c0d13 100%);
+}*/
+
+.img {
+    display: none;
+  }
+#canvas2 {
+position: static;
+}
+
+.col {
+display: table-cell;
+vertical-align: middle;
+}
+
+img.mob-img {
+width: 220px;
+height: 333px;
+}   
+@media screen and (max-width: 992) {
+img.mob-img {
+max-width: 100px;
+height: auto;
+}       
+}
+
+.main-title {
+	position: absolute;
+	margin: 0;
+	padding: 0;
+	color: #f9f1e9;
+	text-align: center;
+	top: 50%;
+	left: 50%;
+	-webkit-transform: translate3d(-50%,-50%,0);
+	transform: translate3d(-50%,-50%,0);
+}
+
+.demo-1 .main-title {
+	text-transform: uppercase;
+	font-size: 3em;
+	letter-spacing: 0.1em;
+}
+
+
+body {
+	background: #fff;
+	color: #d6d6d6;
+    font-weight: 900;
+    font-size: 1em;
+    line-height: 1em;
+    font-family: Montserrat;
+}
+
+
+section {
+	padding: 1em;
+	text-align: center;
+}
+
+p.ref {
+	text-align: center;
+	padding: 2em 1em;
+}
+
+/* Header */
+.codrops-header {
+	margin: 0 auto;
+	padding: 2em;
+	text-align: center;
+	max-width: 900px;
+}
+
+.codrops-header h1 {
+	margin: 0;
+	font-size: 4.5em;
+	line-height: 1;
+	font-weight: 200;
+}
+
+.codrops-header h1 span {
+	display: block;
+	padding: 1em 0 1.5em;
+	font-size: 36%;
+	color: #e0f2f3;
+	line-height: 1.4;
+}
+
+/* To Navigation Style */
+.codrops-top {
+	width: 100%;
+	text-transform: uppercase;
+	font-weight: 700;
+	font-size: 0.69em;
+	text-align: center;
+	padding: 3em 0;
+}
+
+.codrops-top a {
+	display: inline-block;
+	padding: 1.5em;
+	text-decoration: none;
+	letter-spacing: 1px;
+}
+
+.codrops-icon:before {
+	margin: 0 4px;
+	text-transform: none;
+	font-weight: normal;
+	font-style: normal;
+	font-variant: normal;
+	font-family: 'codropsicons';
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+}
+
+.codrops-icon-drop:before {
+	content: "\e001";
+}
+
+.codrops-icon-prev:before {
+	content: "\e004";
+}
+
+/* Demo Buttons Style */
+.codrops-demos {
+	padding-top: 1em;
+	font-size: 0.8em;
+}
+
+.codrops-demos a {
+	display: inline-block;
+	margin: 0.35em 0.1em;
+	padding: 0.5em 1.2em;
+	outline: none;
+	text-decoration: none;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	font-weight: 700;
+	border-radius: 2px;
+	font-size: 110%;
+	border: 2px solid transparent;
+}
+
+.codrops-demos a:hover,
+.codrops-demos a.current-demo {
+	border-color: #383a3c;
+}
+
+.codrops-demos h3 {
+	margin: 0;
+	padding: 1em 0 0.5em 0;
+	font-size: 0.9em;
+	float: left;
+	min-width: 90px;
+	clear: left;
+}
+
+.codrops-demos div:not(:first-child) h3 {
+	padding-top: 2em;
+}
+
+.codrops-demos a:hover,
+.codrops-demos a.current-demo {
+	color: inherit;
+	border-color: initial;
+}
+
+/* Related demos */
+.related {
+	padding: 10em 0;
+}
+
+.related p {
+	font-size: 1.5em;
+}
+
+.related > a {
+	display: inline-block;
+	text-align: center;
+	margin: 20px 10px;
+	padding: 25px;
+	vertical-align: middle;
+}
+
+.related a img {
+	max-width: 100%;
+	opacity: 0.8;
+	border-radius: 10px;
+}
+
+.related a:hover img,
+.related a:active img {
+	opacity: 1;
+}
+
+.related a h3 {
+	margin: 0;
+	min-height: 63px;
+	padding: 0.5em 0 0.3em;
+	max-width: 300px;
+	text-align: center;
+	font-weight: 400;
+	font-size: 1em;
+}
+
+.img-in-container{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 200px
+}
+
+@media screen and (max-width: 40em) {
+
+	.codrops-header h1 {
+		font-size: 2.5em;
+	}
+}

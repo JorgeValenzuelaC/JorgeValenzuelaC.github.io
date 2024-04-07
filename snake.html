@@ -1,0 +1,232 @@
+<!doctypehtml>
+    <html lang=EN-us>
+
+    <head>
+        <meta charset=utf-8>
+        <meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+        <title>raylib web game</title>
+        <link href=img/favicon.ico rel="shortcut icon">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+            integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+        <style>
+            .gradient-custom {
+                /* fallback for old browsers */
+                background: #112c5f;
+
+                /* Chrome 10-25, Safari 5.1-6 */
+                background: -webkit-linear-gradient(to right, rgba(17, 44, 95, 1), rgba(12, 27, 54, 1));
+
+                /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+                background: linear-gradient(to right, rgba(17, 44, 95, 1), rgba(12, 27, 54, 1))
+            }
+
+            body {
+                background: #282828;
+                font-size: 1em;
+                line-height: 1em;
+                font-family: Montserrat;
+                font-weight: 900;
+            }
+
+            #header {
+                width: 0%;
+                height: 50px;
+                background-color: #888
+            }
+
+            #logo {
+                width: 64px;
+                height: 64px;
+                float: left;
+                position: relative;
+                margin: 10px;
+                background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjExR/NCNwAAA7JJREFUaEPtk0FyWzEMQ+37X7fZhxX4YY3AD1OKF1nkzTRlSBCCLeVBnvl/AUdaELOunPno1kts1kixdtEZKVs+xIxebBkZsVknn/L5nFGDLR8T4zVC9fX19S/+tTFijrYK4jUjbPUtqBHpnEE6PkZD7jQZV8n5Recw1XQKciZuPaEtR6UjNs5ENVGMsBVqpPtER0ZMOhpyp8m4YL4OjD9yxsyZxnQycfMJETNSzsRE1+dihK3YMiJmpHTW3xpmXPC6BXlCHfqnBlsjY5hxf/6EVEOM2BTEi0fYCX4ONSI6Kq3Blg/prIOMq2CsRur4KQ0x64SdjOufEDEdHZGOhmz5RDHCVqhRuQ86YsVskbc+GXchLiHnFyYH+UigQDVGnImbT8hwFkgLg2qiM8JO6Ylx1FNLa3DmYwqCTsZd4BPqGJG7MwKzpeiWKTKxXkLMVE3MSOmsdwxLH6Rd/wCCLSNDx6djeKfJuArGeoYamRHpaEjnCBYZVy8hZqo2GI36qPjsiOiMsBXGcev4Mx9TLGTchbgEjN/uz6jGrBvDjg+LTNx8Qp2CbG2xMKgmOiPslJ4Yxx+eSnSkzlosZNwFPiHl7FRTkLNRJm4+IeVM0ymIH42wE/wcKalQI4MRl4EW3p6VcRWMua8F6WjIlqZDxvVPiHQ6CjVbYkV9ohhhp/Rk1wiYgpyJ78i4CsZbjkb8Qx+ihvzu3RPaKogZkY6GlEeMsKdPSOFIC8VoOusg44L5c+T8ouOoGhWbdWJ8tMi4egkxo4hoh2yNTGf3iIyr5Lyic4bRENXo+lvDjAt4C1Hk/OKtUaAj0+n4dMSZ2D+hrYJsaYh2SClG2jV9kJKKzhlGQ1SsW299Mq6C8dYZHTExo8fzieI5ivipYnYy7nwJqGKmOYyRwfiUBXITfh5qSHRGWEkfqJqURgvsdHyWYv7Ko8DnYYegk3EB00cxprdrJRzFd7YQzawu8L1GMTYS/KpPaAFTkIn1EmJmspJSs5xBzSyGhlkBmlxfNFiP5mw4wlbMh4F5Ddxp5jNINBdCEz9zPOC1zD7Q0HBdmXndwv0TMtydEdzlWJT4VZ8Qt9Qn4/onxMIwa5ZYGJU5yufBiCjwE50AGjLCVuS8Yt4H7OgZLKK5EKOsLviEWJSL/+0uMi7gLUSBseYwqEbXvSHCec1CJvZPyHCmYQffaBBfOTCGHM2aEbZi1+gO1XTWVXMnzrhAn5DSOZVsiQlHnSITKzGj6DeTcZWc/3oy7h9//PF4PL4BlvsWrb6RE+oAAAAASUVORK5CYII=')
+            }
+
+            .emscripten {
+                padding-right: 0;
+                margin-left: auto;
+                margin-right: auto;
+                display: flex
+            }
+
+            div.emscripten {
+                text-align: center
+            }
+
+            div.emscripten_border {
+                border: 0px solid #000
+            }
+
+            canvas.emscripten {
+                border: 0 none;
+                background: #000;
+            }
+
+            .spinner {
+                height: 0px;
+                width: 0px;
+                margin: 0;
+                margin-top: 20px;
+                margin-left: 20px;
+                display: inline-block;
+                vertical-align: top;
+                -webkit-animation: rotation .8s linear infinite;
+                -moz-animation: rotation .8s linear infinite;
+                -o-animation: rotation .8s linear infinite;
+                animation: rotation .8s linear infinite;
+                border-left: 5px solid #000;
+                border-right: 5px solid #000;
+                border-bottom: 5px solid #000;
+                border-top: 5px solid red;
+                border-radius: 100%;
+                background-color: #f5f5f5
+            }
+
+            @-webkit-keyframes rotation {
+                from {
+                    -webkit-transform: rotate(0)
+                }
+
+                to {
+                    -webkit-transform: rotate(360deg)
+                }
+            }
+
+            @-moz-keyframes rotation {
+                from {
+                    -moz-transform: rotate(0)
+                }
+
+                to {
+                    -moz-transform: rotate(360deg)
+                }
+            }
+
+            @-o-keyframes rotation {
+                from {
+                    -o-transform: rotate(0)
+                }
+
+                to {
+                    -o-transform: rotate(360deg)
+                }
+            }
+
+            @keyframes rotation {
+                from {
+                    transform: rotate(0)
+                }
+
+                to {
+                    transform: rotate(360deg)
+                }
+            }
+
+            #status {
+                display: inline-block;
+                vertical-align: top;
+                margin-top: 30px;
+                margin-left: 20px;
+                font-weight: 700;
+                color: #282828
+            }
+
+            #progress {
+                height: 0;
+                width: 0
+            }
+
+            #controls {
+                display: inline-block;
+                vertical-align: top;
+                margin-top: 15px;
+                margin-right: 20px
+            }
+
+            #output {
+                width: 0%;
+                height: 0px;
+                margin: 0 auto;
+                margin-top: 10px;
+                display: block;
+                background-color: #000;
+                color: #25ae26;
+                font-family: 'Lucida Console', Monaco, monospace;
+                outline: 0
+            }
+
+            input[type=button] {
+                background-color: #d3d3d3;
+                border: 4px solid #a9a9a9;
+                color: #000;
+                text-decoration: none;
+                cursor: pointer;
+                width: 140px;
+                height: 50px;
+                margin-left: 10px
+            }
+
+            input[type=button]:hover {
+                background-color: #f5f5f5ff;
+                border-color: #000
+            }
+        </style>
+    </head>
+
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark gradient-custom"
+            style="min-height: 56px; z-index: 950;">
+            <a class="navbar-brand" href="index.html" , style="margin-left:30px; margin-right:30px;">JV.</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html" style="margin-right:10px;"> Home <span
+                                class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="CV.html" style="margin-right:10px" ;>CV</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="particle.html" style="margin-right:10px">Brick Game</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="snake.html" style="margin-right:10px">Snake Game</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://n4xx.itch.io" style="margin-right:10px">Itchio 🔗</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div id=header, style="display:none">
+            <div class=spinner id=spinner></div>
+            <div class=emscripten id=status>Downloading...</div><span id=controls><span></span></span>
+            <div class=emscripten><progress hidden id=progress max=100 value=0></progress></div>
+        </div>
+        <div class=emscripten_border><canvas class=emscripten id=canvas oncontextmenu=event.preventDefault()
+                tabindex=-1></canvas></div>
+        <script src=https://cdn.jsdelivr.net/gh/eligrey/FileSaver.js/dist/FileSaver.min.js></script>
+        <script>function saveFileFromMEMFSToDisk(e, a) { var i, o = FS.readFile(e); i = new Blob([o.buffer], { type: "application/octet-binary" }), saveAs(i, a) }</script>
+        <script>var statusElement = document.querySelector("#status"), progressElement = document.querySelector("#progress"), spinnerElement = document.querySelector("#spinner"), Module = { preRun: [], postRun: [], print: function () { var e = document.querySelector("#output"); return e && (e.value = ""), function (t) { arguments.length > 1 && (t = Array.prototype.slice.call(arguments).join(" ")), console.log(t), e && (e.value += t + "\n", e.scrollTop = e.scrollHeight) } }(), printErr: function (e) { arguments.length > 1 && (e = Array.prototype.slice.call(arguments).join(" ")), console.error(e) }, canvas: function () { var e = document.querySelector("#canvas"); return e.addEventListener("webglcontextlost", (function (e) { alert("WebGL context lost. You will need to reload the page."), e.preventDefault() }), !1), e }(), setStatus: function (e) { if (Module.setStatus.last || (Module.setStatus.last = { time: Date.now(), text: "" }), e !== Module.setStatus.last.text) { var t = e.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/), n = Date.now(); t && n - Module.setStatus.last.time < 30 || (Module.setStatus.last.time = n, Module.setStatus.last.text = e, t ? (e = t[1], progressElement.value = 100 * parseInt(t[2]), progressElement.max = 100 * parseInt(t[4]), progressElement.hidden = !0, spinnerElement.hidden = !1) : (progressElement.value = null, progressElement.max = null, progressElement.hidden = !0, e || (spinnerElement.style.display = "none")), statusElement.innerHTML = e) } }, totalDependencies: 0, monitorRunDependencies: function (e) { this.totalDependencies = Math.max(this.totalDependencies, e), Module.setStatus(e ? "Preparing... (" + (this.totalDependencies - e) + "/" + this.totalDependencies + ")" : "All downloads complete.") } }; Module.setStatus("Downloading..."), window.onerror = function () { Module.setStatus("Exception thrown, see JavaScript console"), spinnerElement.style.display = "none", Module.setStatus = function (e) { e && Module.printErr("[post-exception status] " + e) } }</script>
+        <script>var audioBtn = document.querySelector("#btn-audio"); const audioContexList = []; function toggleAudio() { var t = !1; audioContexList.forEach((e => { "suspended" == e.state ? (e.resume(), t = !0) : "running" == e.state && e.suspend() })), audioBtn.value = t ? "🔇 MUTE" : "🔈 RESUME" } self.AudioContext = new Proxy(self.AudioContext, { construct(t, e) { const n = new t(...e); return audioContexList.push(n), "suspended" == n.state && (audioBtn.value = "🔈 RESUME"), n } })</script>
+        <script src=js/snake.js async></script>
+    </body>
+
+    </html>
