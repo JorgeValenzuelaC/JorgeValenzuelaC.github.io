@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nigri — Propuesta PME · Núcleo Milenio SELFO</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06080a;
+  --bg2: #0b0f14;
+  --surface: #0f1620;
+  --surface2: #131d2a;
+  --border: #1c2d42;
+  --border-soft: #15232f;
+
+  --acid: #c8ff00;
+  --acid-dim: #3d5000;
+  --acid-glow: rgba(200,255,0,0.08);
+
+  --blue: #3a9eff;
+  --blue-dim: #0d2d50;
+  --teal: #00d4c8;
+  --teal-dim: #003d38;
+  --orange: #ff7b2e;
+  --orange-dim: #4a2000;
+  --pink: #ff4da6;
+  --pink-dim: #4a0025;
+  --white: #e8f0f5;
+  --muted: #4a6070;
+  --muted2: #2a3c4a;
+
+  --mono: 'DM Mono', monospace;
+  --sans: 'Bricolage Grotesque', sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--white);
+  font-family:var(--sans);
+  line-height:1.6;
+  overflow-x:hidden;
+}
+
+/* ─── GRAIN ─── */
+body::after{
+  content:'';
+  position:fixed;inset:0;z-index:9999;
+  pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.035'/%3E%3C/svg%3E");
+  opacity:0.6;
+}
+
+/* ─── LAYOUT ─── */
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+/* ─── HERO ─── */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding-bottom:72px;
+  position:relative;
+  border-bottom:1px solid var(--border);
+  overflow:hidden;
+}
+
+/* Big background text */
+.hero-bg-word{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-52%);
+  font-size:clamp(120px,22vw,260px);
+  font-weight:800;
+  color:transparent;
+  -webkit-text-stroke:1px rgba(200,255,0,0.06);
+  white-space:nowrap;
+  letter-spacing:-0.05em;
+  pointer-events:none;
+  user-select:none;
+  z-index:0;
+}
+
+/* Animated cell field */
+.cell-canvas{
+  position:absolute;
+  inset:0;
+  z-index:0;
+}
+
+.hero-content{position:relative;z-index:1}
+.hero-eyebrow{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:0.2em;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-bottom:40px;
+  display:flex;align-items:center;gap:16px;
+}
+.hero-eyebrow::before{
+  content:'';
+  display:inline-block;
+  width:32px;height:1px;
+  background:var(--acid);
+}
+.hero-eyebrow span{color:var(--acid)}
+
+.hero-title{
+  font-size:clamp(72px,14vw,148px);
+  font-weight:800;
+  line-height:0.9;
+  letter-spacing:-0.04em;
+  color:var(--acid);
+  margin-bottom:8px;
+}
+.hero-subtitle{
+  font-size:clamp(18px,3vw,28px);
+  font-weight:300;
+  color:var(--white);
+  opacity:0.7;
+  letter-spacing:-0.01em;
+  margin-bottom:40px;
+}
+.hero-desc{
+  max-width:560px;
+  font-size:16px;
+  color:rgba(232,240,245,0.6);
+  line-height:1.75;
+  margin-bottom:48px;
+}
+
+/* Status pills */
+.status-row{
+  display:flex;flex-wrap:wrap;gap:10px;
+}
+.pill{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  padding:5px 12px;
+  border:1px solid;
+  border-radius:2px;
+}
+.pill-acid{color:var(--acid);border-color:var(--acid-dim);background:var(--acid-glow)}
+.pill-blue{color:var(--blue);border-color:var(--blue-dim)}
+.pill-teal{color:var(--teal);border-color:var(--teal-dim)}
+.pill-muted{color:var(--muted);border-color:var(--muted2)}
+
+/* ─── SECTION ─── */
+.section{
+  padding:80px 0;
+  border-bottom:1px solid var(--border);
+}
+.section-id{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:0.25em;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.section-title{
+  font-size:clamp(32px,5vw,52px);
+  font-weight:800;
+  letter-spacing:-0.025em;
+  color:var(--white);
+  line-height:1.05;
+  margin-bottom:8px;
+}
+.section-title em{
+  color:var(--acid);
+  font-style:normal;
+}
+.section-lead{
+  font-size:17px;
+  color:rgba(232,240,245,0.6);
+  max-width:620px;
+  line-height:1.7;
+  margin-bottom:48px;
+}
+
+h3{
+  font-size:18px;
+  font-weight:700;
+  color:var(--white);
+  margin-bottom:12px;
+  letter-spacing:-0.01em;
+}
+p{font-size:15px;color:rgba(232,240,245,0.65);line-height:1.75;margin-bottom:16px}
+p:last-child{margin-bottom:0}
+strong{color:var(--white)}
+
+/* ─── CONCEPT FRAME ─── */
+.concept-frame{
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:36px;
+  position:relative;
+  margin:32px 0;
+}
+.concept-frame::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:3px;
+  background:linear-gradient(90deg,var(--acid),var(--teal));
+}
+.cf-label{
+  font-family:var(--mono);
+  font-size:9px;
+  letter-spacing:0.25em;
+  color:var(--acid);
+  text-transform:uppercase;
+  margin-bottom:16px;
+}
+
+/* ─── KEY INSIGHT ─── */
+.insight{
+  background:linear-gradient(135deg,rgba(200,255,0,0.04),rgba(0,212,200,0.04));
+  border:1px solid rgba(200,255,0,0.15);
+  padding:28px 32px;
+  margin:32px 0;
+  position:relative;
+}
+.insight blockquote{
+  font-size:18px;
+  font-weight:600;
+  color:var(--white);
+  line-height:1.5;
+  letter-spacing:-0.01em;
+}
+.insight blockquote em{color:var(--acid);font-style:normal}
+.insight-source{
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--muted);
+  margin-top:12px;
+  letter-spacing:0.1em;
+}
+
+/* ─── MECHANIC TILES ─── */
+.tile-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  margin:32px 0;
+}
+.tile{
+  background:var(--surface);
+  padding:24px;
+  position:relative;
+  cursor:default;
+  transition:background 0.2s;
+}
+.tile:hover{background:var(--surface2)}
+.tile-icon{
+  width:40px;height:40px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  margin-bottom:16px;
+  border:1px solid;
+}
+.tile-icon-acid{background:rgba(200,255,0,0.08);border-color:var(--acid-dim);color:var(--acid)}
+.tile-icon-teal{background:rgba(0,212,200,0.08);border-color:var(--teal-dim);color:var(--teal)}
+.tile-icon-orange{background:rgba(255,123,46,0.08);border-color:var(--orange-dim);color:var(--orange)}
+.tile-icon-blue{background:rgba(58,158,255,0.08);border-color:var(--blue-dim);color:var(--blue)}
+.tile-icon-pink{background:rgba(255,77,166,0.08);border-color:var(--pink-dim);color:var(--pink)}
+.tile-icon-muted{background:rgba(74,96,112,0.15);border-color:var(--muted2);color:var(--muted)}
+.tile h4{font-size:13px;font-weight:700;color:var(--white);margin-bottom:8px;letter-spacing:0.01em}
+.tile p{font-size:12px;color:var(--muted);line-height:1.55;margin:0}
+.tile .tile-badge{
+  font-family:var(--mono);
+  font-size:9px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:6px;
+  display:block;
+}
+
+/* ─── SIGNAL TILE VISUAL ─── */
+.signal-rules{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:12px;
+  margin:28px 0;
+}
+.signal-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:16px;
+  text-align:center;
+}
+.signal-sym{
+  font-size:32px;
+  margin-bottom:8px;
+  display:block;
+  line-height:1;
+}
+.signal-name{
+  font-weight:700;
+  font-size:12px;
+  color:var(--white);
+  margin-bottom:4px;
+  letter-spacing:0.03em;
+}
+.signal-bio{
+  font-family:var(--mono);
+  font-size:9px;
+  color:var(--muted);
+  line-height:1.4;
+}
+
+/* ─── LOOP DIAGRAM ─── */
+.loop-row{
+  display:flex;
+  align-items:stretch;
+  gap:0;
+  margin:32px 0;
+  overflow-x:auto;
+}
+.loop-step{
+  flex:1;
+  min-width:120px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:20px 16px;
+  text-align:center;
+  position:relative;
+}
+.loop-step+.loop-step{
+  border-left:none;
+}
+.loop-arrow{
+  position:absolute;
+  right:-14px;top:50%;
+  transform:translateY(-50%);
+  z-index:2;
+  width:28px;height:28px;
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;
+  color:var(--acid);
+}
+.loop-step:last-child .loop-arrow{display:none}
+.ls-num{
+  font-family:var(--mono);
+  font-size:9px;
+  color:var(--acid);
+  letter-spacing:0.15em;
+  margin-bottom:8px;
+  text-transform:uppercase;
+}
+.ls-title{font-size:12px;font-weight:700;color:var(--white);margin-bottom:4px}
+.ls-desc{font-size:10px;color:var(--muted);line-height:1.4}
+.ls-accent{color:var(--acid)}
+
+/* ─── NARRATIVE ARC ─── */
+.arc-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  margin:28px 0;
+}
+.arc-item{
+  background:var(--surface);
+  display:grid;
+  grid-template-columns:100px 60px 1fr;
+  align-items:center;
+  padding:16px 20px;
+  gap:16px;
+}
+.arc-item:hover{background:var(--surface2)}
+.arc-chapter{
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+}
+.arc-icon{font-size:22px;text-align:center}
+.arc-content h5{font-size:13px;font-weight:700;color:var(--white);margin-bottom:3px}
+.arc-content p{font-size:12px;color:var(--muted);margin:0;line-height:1.4}
+.arc-content .arc-mech{
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--acid);
+  margin-top:4px;
+  display:block;
+}
+
+/* ─── COMPARISON ─── */
+.gene-table{
+  width:100%;border-collapse:collapse;
+  font-size:13px;margin:28px 0;
+}
+.gene-table th{
+  background:var(--surface);
+  padding:10px 14px;
+  font-family:var(--mono);
+  font-size:9px;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:var(--muted);
+  border:1px solid var(--border);
+  text-align:left;
+}
+.gene-table td{
+  padding:12px 14px;
+  border:1px solid var(--border);
+  vertical-align:top;
+  color:rgba(232,240,245,0.6);
+}
+.gene-table td:first-child{
+  color:var(--white);
+  font-weight:600;
+  background:var(--surface);
+}
+.gene-table tr:nth-child(even) td:not(:first-child){
+  background:rgba(255,255,255,0.01);
+}
+.check{color:var(--acid);font-weight:700}
+.x{color:var(--muted)}
+.partial{color:var(--orange)}
+
+/* ─── SCORES ─── */
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  margin:28px 0;
+}
+.kpi{
+  background:var(--surface);
+  padding:20px 16px;
+  text-align:center;
+}
+.kpi-val{
+  font-family:var(--mono);
+  font-size:clamp(28px,4vw,38px);
+  font-weight:500;
+  color:var(--acid);
+  line-height:1;
+  margin-bottom:6px;
+  letter-spacing:-0.02em;
+}
+.kpi-label{
+  font-size:11px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  font-family:var(--mono);
+}
+
+/* ─── BUDGET ─── */
+.budget-table{
+  width:100%;border-collapse:collapse;font-size:14px;margin:28px 0;
+}
+.budget-table th{
+  background:var(--surface2);
+  padding:10px 16px;
+  font-family:var(--mono);
+  font-size:9px;letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--border);
+  text-align:left;
+}
+.budget-table td{
+  padding:12px 16px;
+  border:1px solid var(--border);
+  color:rgba(232,240,245,0.65);
+}
+.budget-table td:first-child{color:var(--white);font-weight:600;background:var(--surface)}
+.budget-table td:last-child{
+  font-family:var(--mono);
+  color:var(--acid);
+  text-align:right;
+  font-weight:500;
+}
+.budget-table tr.total td{
+  background:var(--surface2);
+  font-weight:700;
+  border-top:2px solid var(--acid);
+}
+.budget-table tr.total td:last-child{
+  font-size:16px;color:var(--acid);
+}
+
+/* ─── TIMELINE ─── */
+.timeline{
+  position:relative;
+  margin:32px 0;
+}
+.timeline::before{
+  content:'';
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:1px;
+  background:var(--border);
+}
+.tl-item{
+  padding-left:32px;
+  padding-bottom:32px;
+  position:relative;
+}
+.tl-item:last-child{padding-bottom:0}
+.tl-dot{
+  position:absolute;
+  left:-5px;top:4px;
+  width:11px;height:11px;
+  border-radius:50%;
+  background:var(--acid);
+  border:2px solid var(--bg);
+}
+.tl-dot.dim{background:var(--muted2)}
+.tl-period{
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--acid);
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+.tl-period.dim{color:var(--muted)}
+.tl-title{font-size:15px;font-weight:700;color:var(--white);margin-bottom:8px}
+.tl-list{list-style:none;margin:0}
+.tl-list li{
+  font-size:13px;
+  color:var(--muted);
+  padding:3px 0 3px 16px;
+  position:relative;
+}
+.tl-list li::before{
+  content:'→';
+  position:absolute;left:0;
+  color:var(--acid);
+  opacity:0.5;
+}
+.tl-milestone{
+  display:inline-block;
+  margin-top:8px;
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:0.1em;
+  color:var(--acid);
+  background:var(--acid-glow);
+  border:1px solid var(--acid-dim);
+  padding:3px 10px;
+}
+
+/* ─── TEAM ─── */
+.team-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  margin:24px 0;
+}
+.team-card{
+  background:var(--surface);
+  padding:20px;
+}
+.team-emoji{font-size:24px;margin-bottom:10px;display:block}
+.team-role{font-size:13px;font-weight:700;color:var(--white);margin-bottom:4px}
+.team-ded{
+  font-family:var(--mono);
+  font-size:10px;color:var(--acid);margin-bottom:8px;
+}
+.team-skills{font-size:11px;color:var(--muted);line-height:1.5}
+
+/* ─── IMPACT ─── */
+.impact-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:16px;
+  margin:28px 0;
+}
+.impact-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:24px;
+}
+.impact-card h4{
+  font-size:13px;font-weight:700;
+  color:var(--white);margin-bottom:8px;
+  letter-spacing:0.02em;
+}
+.impact-card p{font-size:12px;color:var(--muted);line-height:1.55;margin:0}
+.impact-num{
+  font-family:var(--mono);
+  font-size:28px;
+  font-weight:500;
+  color:var(--acid);
+  margin-bottom:6px;
+  line-height:1;
+}
+
+/* ─── PME SECTION ─── */
+.pme-box{
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:0;
+  margin:32px 0;
+  overflow:hidden;
+}
+.pme-header{
+  background:var(--surface2);
+  padding:16px 24px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.pme-header h3{margin:0;font-size:14px}
+.pme-badge{
+  font-family:var(--mono);
+  font-size:9px;letter-spacing:0.15em;text-transform:uppercase;
+  padding:3px 8px;
+  background:var(--acid-glow);
+  border:1px solid var(--acid-dim);
+  color:var(--acid);
+  border-radius:2px;
+}
+.pme-body{padding:24px}
+.pme-row{
+  display:grid;
+  grid-template-columns:200px 1fr;
+  gap:16px;
+  padding:12px 0;
+  border-bottom:1px solid var(--border-soft);
+  align-items:start;
+}
+.pme-row:last-child{border-bottom:none}
+.pme-key{
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  padding-top:2px;
+}
+.pme-val{font-size:13px;color:var(--white);line-height:1.6}
+.pme-val strong{color:var(--acid)}
+
+/* ─── FOOTER ─── */
+.footer{
+  padding:60px 0;
+  text-align:center;
+  border-top:1px solid var(--border);
+}
+.footer-name{
+  font-size:clamp(48px,8vw,80px);
+  font-weight:800;
+  letter-spacing:-0.04em;
+  color:transparent;
+  -webkit-text-stroke:1px rgba(200,255,0,0.3);
+  margin-bottom:16px;
+}
+.footer-meta{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--muted);
+  letter-spacing:0.1em;
+  line-height:2;
+}
+
+/* ─── STICKY SIDE LABEL ─── */
+.side-label{
+  position:fixed;
+  right:0;top:50%;
+  transform:translateY(-50%) rotate(90deg);
+  transform-origin:right center;
+  font-family:var(--mono);
+  font-size:9px;
+  letter-spacing:0.3em;
+  color:var(--muted2);
+  text-transform:uppercase;
+  pointer-events:none;
+  z-index:100;
+}
+
+/* ─── DIVIDER ─── */
+.hr{width:48px;height:1px;background:var(--border);margin:32px 0}
+
+/* ─── UTIL ─── */
+.acid{color:var(--acid)}
+.teal{color:var(--teal)}
+.blue{color:var(--blue)}
+.orange{color:var(--orange)}
+.mono{font-family:var(--mono);font-size:12px}
+ul.bullets{list-style:none;margin:12px 0}
+ul.bullets li{
+  font-size:14px;color:rgba(232,240,245,0.6);
+  padding:5px 0 5px 20px;
+  position:relative;
+  border-bottom:1px solid var(--border-soft);
+}
+ul.bullets li:last-child{border-bottom:none}
+ul.bullets li::before{content:'';position:absolute;left:0;top:13px;width:8px;height:1px;background:var(--acid)}
+
+@media(max-width:600px){
+  .arc-item{grid-template-columns:1fr;gap:8px}
+  .pme-row{grid-template-columns:1fr}
+  .loop-row{flex-direction:column}
+  .loop-arrow{display:none}
+}
+</style>
+</head>
+<body>
+<div class="side-label">SELFO PME · ANID Chile</div>
+
+<!-- ══ HERO ══ -->
+<div class="hero wrap">
+  <div class="hero-bg-word">NIGRI</div>
+
+  <!-- Animated SVG cells (igual que original) -->
+  <svg class="cell-canvas" viewBox="0 0 980 700" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <style>
+        .hc{animation:hcpulse 4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+        .hc1{animation-delay:0s}.hc2{animation-delay:.6s}.hc3{animation-delay:1.2s}
+        .hc4{animation-delay:1.8s}.hc5{animation-delay:2.4s}.hc6{animation-delay:3s}
+        .hc7{animation-delay:.3s}.hc8{animation-delay:.9s}.hc9{animation-delay:2.1s}
+        @keyframes hcpulse{0%,100%{opacity:.12;r:inherit}50%{opacity:.28;r:inherit}}
+        .hl{animation:hldash 3s linear infinite;stroke-dasharray:3 6}
+        @keyframes hldash{to{stroke-dashoffset:-18}}
+        .hdot{animation:hdotpulse 2.5s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+        @keyframes hdotpulse{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:.8;transform:scale(1.5)}}
+        .floater{animation:hfloat 6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+        .floater2{animation:hfloat 8s ease-in-out infinite reverse;transform-box:fill-box;transform-origin:center}
+        @keyframes hfloat{0%,100%{transform:translate(0,0)}33%{transform:translate(8px,-12px)}66%{transform:translate(-6px,8px)}}
+      </style>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="3" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    <!-- Scattered cells -->
+    <circle class="hc hc1 floater" cx="780" cy="160" r="80" stroke="#c8ff00" stroke-width="0.8" fill="none"/>
+    <circle class="hc hc2" cx="860" cy="240" r="45" stroke="#c8ff00" stroke-width="0.6" fill="none"/>
+    <circle class="hc hc3 floater2" cx="700" cy="280" r="55" stroke="#00d4c8" stroke-width="0.7" fill="none"/>
+    <circle class="hc hc4" cx="820" cy="380" r="65" stroke="#c8ff00" stroke-width="0.5" fill="none"/>
+    <circle class="hc hc5 floater" cx="660" cy="180" r="30" stroke="#00d4c8" stroke-width="0.6" fill="none"/>
+    <circle class="hc hc6" cx="900" cy="140" r="38" stroke="#c8ff00" stroke-width="0.5" fill="none"/>
+    <circle class="hc hc7 floater2" cx="750" cy="430" r="50" stroke="#00d4c8" stroke-width="0.6" fill="none"/>
+    <circle class="hc hc8" cx="610" cy="320" r="25" stroke="#c8ff00" stroke-width="0.5" fill="none"/>
+    <circle class="hc hc9 floater" cx="930" cy="310" r="42" stroke="#00d4c8" stroke-width="0.4" fill="none"/>
+    <!-- Connection lines -->
+    <line class="hl" x1="780" y1="160" x2="700" y2="280" stroke="#c8ff00" stroke-width="0.4" opacity="0.25"/>
+    <line class="hl" x1="700" y1="280" x2="820" y2="380" stroke="#00d4c8" stroke-width="0.3" opacity="0.2"/>
+    <line class="hl" x1="860" y1="240" x2="820" y2="380" stroke="#c8ff00" stroke-width="0.3" opacity="0.2"/>
+    <line class="hl" x1="780" y1="160" x2="660" y2="180" stroke="#00d4c8" stroke-width="0.3" opacity="0.15"/>
+    <!-- Nucleus dots -->
+    <circle class="hdot" cx="780" cy="160" r="3.5" fill="#c8ff00" filter="url(#glow)"/>
+    <circle class="hdot" cx="860" cy="240" r="2.5" fill="#c8ff00"/>
+    <circle class="hdot" cx="700" cy="280" r="3" fill="#00d4c8" filter="url(#glow)"/>
+    <circle class="hdot" cx="820" cy="380" r="3" fill="#c8ff00"/>
+    <circle class="hdot" cx="660" cy="180" r="2" fill="#00d4c8"/>
+    <circle class="hdot" cx="750" cy="430" r="2.5" fill="#00d4c8"/>
+  </svg>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">Propuesta Formal PME · Concurso Público <span>ANID / Núcleo Milenio SELFO</span></div>
+    <div class="hero-title">Nigri</div>
+    <div class="hero-subtitle">Autoorganiza la Vida en un Charco Efímero</div>
+    <p class="hero-desc">Un videojuego arcade-puzzle para dispositivos móviles donde el jugador diseña las reglas de interacción celular del embrión de <em>Argolebias nigripinnis</em> — y observa cómo la vida emerge desde el caos, en tiempo real.</p>
+    <div class="status-row">
+      <span class="pill pill-acid">Godot Engine 4 · 2D</span>
+      <span class="pill pill-teal">Android / iOS</span>
+      <span class="pill pill-blue">Divulgación Científica</span>
+      <span class="pill pill-muted">Adolescentes 13–18 años</span>
+      <span class="pill pill-muted">Duración prototipo: 3–4 meses</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 01 — EL PROBLEMA ══ -->
+<section class="section">
+<div class="wrap">
+  <div class="section-id">// 01 — Problema y Oportunidad</div>
+  <h2 class="section-title">La ciencia compleja<br>necesita un <em>lenguaje</em> nuevo</h2>
+  <p class="section-lead">Los conceptos de autoorganización y emergencia son centrales para entender la biología moderna — pero son contraintuitivos y difíciles de comunicar en formatos tradicionales.</p>
+
+  <div class="tile-grid">
+    <div class="tile">
+      <div class="tile-icon tile-icon-muted">📚</div>
+      <span class="tile-badge">El problema</span>
+      <h4>La autoorganización es invisible</h4>
+      <p>En libros y videos, la autoorganización se explica con metáforas. Pero comprender que el orden emerge desde reglas locales requiere <em>experimentar</em> el sistema, no leerlo.</p>
+    </div>
+    <div class="tile">
+      <div class="tile-icon tile-icon-muted">🎓</div>
+      <span class="tile-badge">El problema</span>
+      <h4>Los juegos educativos aburren</h4>
+      <p>La mayoría de los "serious games" en ciencias son trivias disfrazadas de juego. Carecen de mecánicas propias y no generan la experiencia de aprendizaje genuino por descubrimiento.</p>
+    </div>
+    <div class="tile">
+      <div class="tile-icon tile-icon-acid">💡</div>
+      <span class="tile-badge">La oportunidad</span>
+      <h4>El juego como laboratorio</h4>
+      <p>Si el <em>mecanismo</em> del juego <strong>es</strong> el fenómeno científico, el jugador aprende haciéndolo — no leyendo sobre él. Nigri hace esto: sus mecánicas son autoorganización real.</p>
+    </div>
+    <div class="tile">
+      <div class="tile-icon tile-icon-acid">🐟</div>
+      <span class="tile-badge">La oportunidad</span>
+      <h4>SELFO tiene el caso perfecto</h4>
+      <p>El <em>Argolebias nigripinnis</em> tiene embriones transparentes con pocas células, haciendo la autoorganización literalmente visible. Es el organismo modelo ideal para un juego de este tipo.</p>
+    </div>
+  </div>
+
+  <div class="insight">
+    <blockquote>
+      El principio de diseño de Nigri: <em>el jugador no aprende sobre autoorganización —
+      el jugador autoorganiza.</em> La mecánica central no ilustra el concepto científico, lo ejecuta.
+    </blockquote>
+    <div class="insight-source">// Principio de Diseño Central · Inspirado en MDA Framework (Hunicke et al., 2004)</div>
+  </div>
+</div>
+</section>
+
+<!-- ══ 02 — EL JUEGO ══ -->
+<section class="section">
+<div class="wrap">
+  <div class="section-id">// 02 — El Juego: Concept & Vision</div>
+  <h2 class="section-title"><em>Nigri</em> —<br>Diseño del Juego</h2>
+  <p class="section-lead">Un arcade-puzzle de colocación táctica en tiempo real. Simple de aprender en 30 segundos. Con una profundidad emergente que se expande a lo largo de 5 capítulos y 45 niveles.</p>
+
+  <div class="concept-frame">
+    <div class="cf-label">// Descripción de una sesión de juego</div>
+    <h3>¿Cómo se juega Nigri?</h3>
+    <p>El jugador ve un campo de células embrionarias dispersas sobre un sustrato oscuro — como un microscopio en vivo. En la esquina inferior tiene una <strong>mano de 3–5 "Fichas de Señal"</strong>, cada una con un tipo de interacción biológica. La simulación corre en tiempo real: las células se mueven, se agrupan, se dividen o mueren según las fichas ya colocadas.</p>
+    <p>El objetivo de cada nivel es guiar las células hacia un <strong>patrón objetivo</strong> visible en pantalla — una mórula, un tejido, una capa celular específica. El jugador arrastra y coloca fichas en el tablero. Las células responden inmediatamente. Al alcanzar el patrón, el nivel explota en una animación de eclosión y el jugador avanza. <strong>Menos fichas usadas = mayor puntuación</strong>.</p>
+    <p>El tiempo corre. Las células más alejadas eventualmente mueren por apoptosis (si no se organizan). Nuevas células aparecen. El sistema no espera — y tampoco el jugador.</p>
+    <p>La interfaz táctil es directa: un toque corto muestra una descripción rápida de la ficha; arrastrar y soltar posiciona señales con un radio de efecto visible; un gesto de pinza permite acercar o alejar ligeramente la vista para seguir mejor el comportamiento emergente.</p>
+    <p>En la parte superior, una <strong>barra de Orden</strong> indica qué tan cerca está la configuración actual del patrón objetivo, y una <strong>barra de Viabilidad</strong> refleja cuánta masa celular queda disponible antes de que el embrión colapse.</p>
+  </div>
+
+  <h3>Las Fichas de Señal — La Mecánica Central</h3>
+  <p>Cada ficha representa un tipo de interacción celular real del embrión de <em>Argolebias nigripinnis</em>. Su nombre en el juego es deliberadamente biológico — el glosario las explica cuando el jugador quiere saber más.</p>
+
+  <div class="signal-rules">
+    <div class="signal-card">
+      <span class="signal-sym">🔵</span>
+      <div class="signal-name">ATRACCIÓN</div>
+      <div class="signal-bio">Las células dentro del radio migran hacia el centro, generando focos de agregación. Útil para compactar mórulas y tejidos.</div>
+    </div>
+    <div class="signal-card">
+      <span class="signal-sym">🔴</span>
+      <div class="signal-name">REPULSIÓN</div>
+      <div class="signal-bio">Las células cercanas son empujadas hacia afuera. Permite despejar zonas o evitar que grupos entren en áreas de riesgo.</div>
+    </div>
+    <div class="signal-card">
+      <span class="signal-sym">🟡</span>
+      <div class="signal-name">INDUCTORA</div>
+      <div class="signal-bio">Cambia el "tipo" de las células que pasan encima, modificando cómo responden a otras señales. Modela señalización paracrina.</div>
+    </div>
+    <div class="signal-card">
+      <span class="signal-sym">🟢</span>
+      <div class="signal-name">NUTRIENTE</div>
+      <div class="signal-bio">Las células que llegan tienen probabilidad de dividirse. Permite recuperar masa celular, pero un exceso genera saturación y caos.</div>
+    </div>
+    <div class="signal-card">
+      <span class="signal-sym">⚫</span>
+      <div class="signal-name">BARRERA</div>
+      <div class="signal-bio">Las células no pueden cruzar. Sirve para dibujar límites, anillos o túneles de tejido. Modela láminas basales.</div>
+    </div>
+    <div class="signal-card">
+      <span class="signal-sym">⏸️</span>
+      <div class="signal-name">DIAPAUSA</div>
+      <div class="signal-bio">Ralentiza o congela el movimiento celular en un área. Permite "guardar" parte del embrión mientras se reorganiza el resto.</div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <blockquote>
+      La adictividad emerge de la <em>interfaz entre una regla y otra</em>: ATRACCIÓN + BARRERA crea un tejido en anillo. INDUCTORA + NUTRIENTE genera una explosión de diferenciación. El jugador descubre esto — el juego no se lo dice. <em>Eso</em> es emergencia.
+    </blockquote>
+    <div class="insight-source">// Principio de Diseño: Emergencia Jugable · Referencia: Threes! (Sirvo LLC, 2014)</div>
+  </div>
+
+  <h3 style="margin-top:40px">El Loop Arcade — 90 Segundos por Nivel</h3>
+
+  <div class="loop-row">
+    <div class="loop-step">
+      <div class="loop-arrow">→</div>
+      <div class="ls-num">01</div>
+      <div class="ls-title">Observar</div>
+      <div class="ls-desc">Campo celular inicial. Ver movimiento espontáneo. Leer el estado y el patrón objetivo.</div>
+    </div>
+    <div class="loop-step">
+      <div class="loop-arrow">→</div>
+      <div class="ls-num">02</div>
+      <div class="ls-title">Planificar</div>
+      <div class="ls-desc">Evaluar la mano de fichas, prever combinaciones locales, decidir dónde influir primero.</div>
+    </div>
+    <div class="loop-step">
+      <div class="loop-arrow">→</div>
+      <div class="ls-num">03</div>
+      <div class="ls-title">Colocar</div>
+      <div class="ls-desc">Arrastrar fichas al tablero. Elegir posición táctica. Ver feedback inmediato en las trayectorias celulares.</div>
+    </div>
+    <div class="loop-step">
+      <div class="loop-arrow">→</div>
+      <div class="ls-num">04</div>
+      <div class="ls-title">Ajustar</div>
+      <div class="ls-desc">Reaccionar a efectos emergentes. Añadir o eliminar fichas. Usar Diapausa como "tiempo muerto" local.</div>
+    </div>
+    <div class="loop-step">
+      <div class="ls-num">05</div>
+      <div class="ls-title">Resolver</div>
+      <div class="ls-desc">Alcanzar el patrón objetivo. Recibir puntuación según orden, viabilidad y eficiencia de fichas.</div>
+    </div>
+  </div>
+
+  <h3>Ejemplo: Nivel 1–3 “Primera Mórula”</h3>
+  <p>Para aterrizar el diseño, el Nivel 1–3 muestra cómo el jugador aprende a combinar ATRACCIÓN y NUTRIENTE bajo presión suave de tiempo.</p>
+  <ul class="bullets">
+    <li><strong>Estado inicial:</strong> 12 células blancas dispersas en un círculo amplio, sin señales activas.</li>
+    <li><strong>Patrón objetivo:</strong> un círculo guía tenue en el centro de la pantalla que indica la forma de la mórula de 12 células.</li>
+    <li><strong>Fichas disponibles:</strong> 1x ATRACCIÓN, 1x NUTRIENTE, 1x DIAPAUSA (comodín opcional de emergencia).</li>
+    <li><strong>Acciones típicas:</strong> el jugador arrastra ATRACCIÓN al centro para crear un “pozo” de quimiotaxis y luego coloca NUTRIENTE ligeramente desplazada para compensar las células que mueren antes de llegar.</li>
+    <li><strong>Feedback:</strong> la barra de Orden sube a medida que las células coinciden con la plantilla; al alcanzar el 100 %, Nigri emite un destello, se oye un pequeño latido y el nivel termina.</li>
+    <li><strong>Variación:</strong> si el jugador gasta la DIAPAUSA, congela la mitad de las células para reorganizar sin presión, pero pierde puntos de eficiencia y solo recibe 2 estrellas.</li>
+  </ul>
+</div>
+</section>
+
+<!-- ══ 03 — NARRATIVA ══ -->
+<section class="section">
+<div class="wrap">
+  <div class="section-id">// 03 — Ciclo Biológico & Estructura</div>
+  <h2 class="section-title">Del charco a la <em>eclosión</em></h2>
+  <p class="section-lead">La estructura narrativa de Nigri sigue fielmente el ciclo biológico del <em>Argolebias nigripinnis</em>. Cada capítulo es una etapa real — y cada etapa introduce una nueva mecánica de juego.</p>
+
+  <div class="arc-grid">
+    <div class="arc-item">
+      <div class="arc-chapter">Capítulo 1 · Primeras lluvias</div>
+      <div class="arc-icon">🌧️</div>
+      <div class="arc-content">
+        <h5>El charco despierta</h5>
+        <p>Las primeras lluvias llenan las depresiones del suelo. Los huevos enterrados comienzan a activarse. El laboratorio SELFO enciende sus microscopios.</p>
+        <span class="arc-mech">Mecánicas: ATRACCIÓN, REPULSIÓN · Niveles cortos de 60–90 s</span>
+      </div>
+    </div>
+    <div class="arc-item">
+      <div class="arc-chapter">Capítulo 2 · Organización temprana</div>
+      <div class="arc-icon">🧬</div>
+      <div class="arc-content">
+        <h5>Tejidos en construcción</h5>
+        <p>Las células del embrión se organizan en estructuras cada vez más complejas. Aparecen señales que inducen cambios de tipo celular y proliferación.</p>
+        <span class="arc-mech">Mecánicas: INDUCTORA, NUTRIENTE · Primeros combos de señal</span>
+      </div>
+    </div>
+    <div class="arc-item">
+      <div class="arc-chapter">Capítulo 3 · Diapausa I</div>
+      <div class="arc-icon">⏸️</div>
+      <div class="arc-content">
+        <h5>Dispersión controlada</h5>
+        <p>Las células se dispersan por el huevo, el desarrollo se pausa para sobrevivir a condiciones inciertas. El jugador aprende a congelar regiones estratégicas.</p>
+        <span class="arc-mech">Mecánicas: BARRERA, modo DIAPAUSA · Mayor exigencia táctica</span>
+      </div>
+    </div>
+    <div class="arc-item">
+      <div class="arc-chapter">Capítulo 4 · Diapausa II</div>
+      <div class="arc-icon">🔥</div>
+      <div class="arc-content">
+        <h5>Sequía y urgencia</h5>
+        <p>El charco se seca. El contador de sequía reduce la viabilidad del embrión si no se reorganiza a tiempo en el estado correcto.</p>
+        <span class="arc-mech">Mecánicas: contador de SEQUÍA · Mano de cartas tipo roguelite</span>
+      </div>
+    </div>
+    <div class="arc-item">
+      <div class="arc-chapter">Capítulo 5 · Diapausa III & Eclosión</div>
+      <div class="arc-icon">✨</div>
+      <div class="arc-content">
+        <h5>El momento exacto de nacer</h5>
+        <p>El embrión debe sincronizar su eclosión con el retorno del agua. Todas las fichas están disponibles; el jugador domina el sistema completo.</p>
+        <span class="arc-mech">Mecánicas: todas combinadas · Nivel “ECLOSIÓN” como boss final</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept-frame">
+    <div class="cf-label">// Bitácora SELFO</div>
+    <h3>Contenido científico integrado, no intrusivo</h3>
+    <p>Al completar cada capítulo, se desbloquea una entrada en la "Bitácora SELFO" — una sección informativa opcional con:</p>
+    <ul class="bullets">
+      <li><strong>Imágenes reales</strong> de microscopía del embrión de <em>Argolebias nigripinnis</em>.</li>
+      <li><strong>Explicación científica</strong> de la mecánica del capítulo (por ejemplo: quimiotaxis, diapausa, autoorganización).</li>
+      <li><strong>Conexión con la investigación</strong> actual del Núcleo Milenio: publicaciones recientes, preguntas abiertas.</li>
+      <li><strong>¿Sabías que...?</strong> datos fascinantes sobre la resiliencia del pez y su ambiente natural.</li>
+    </ul>
+    <p style="margin-top:16px">Este sistema cumple la función de divulgación científica rigurosa sin interrumpir el flujo de juego — el jugador la consume voluntariamente, cuando ya está enganchado.</p>
+  </div>
+</div>
+</section>
+
+<!-- ══ 04 — DIFERENCIACIÓN ══ -->
+<section class="section">
+<div class="wrap">
+  <div class="section-id">// 04 — Posicionamiento & Referentes</div>
+  <h2 class="section-title">La <em>síntesis</em> correcta<br>de tres linajes</h2>
+  <p class="section-lead">Nigri no imita un referente — sintetiza deliberadamente tres tradiciones exitosas de diseño de juegos móviles.</p>
+
+  <div class="tile-grid">
+    <div class="tile">
+      <div class="tile-icon tile-icon-acid">🧩</div>
+      <span class="tile-badge">Linaje 1 — Profundidad emergente</span>
+      <h4>Opus Magnum / SpaceChem</h4>
+      <p>Juegos donde el jugador programa un sistema de reglas y observa la solución ejecutarse. Nigri hereda la satisfacción de ver tu lógica funcionar — pero comprime el diseño en sesiones de 90 segundos, no 30 minutos.</p>
+    </div>
+    <div class="tile">
+      <div class="tile-icon tile-icon-teal">📱</div>
+      <span class="tile-badge">Linaje 2 — Arcade táctil</span>
+      <h4>Threes! / Alto's Odyssey</h4>
+      <p>Juegos de un vistazo comprensible pero con profundidad de dominio. Nigri hereda la economía de controles táctiles (drag & drop simple), la sesión corta y el "un nivel más" compulsivo que los hace adictivos.</p>
+    </div>
+    <div class="tile">
+      <div class="tile-icon tile-icon-orange">🌊</div>
+      <span class="tile-badge">Linaje 3 — Simulación orgánica</span>
+      <h4>Osmos / Flow</h4>
+      <p>Juegos con física de partículas biológica y estética de microscopía. Nigri hereda la sensación de manejar algo vivo y frágil — donde cada célula importa y la pantalla se siente como un organismo real.</p>
+    </div>
+  </div>
+
+  <table class="gene-table" style="margin-top:32px">
+    <thead>
+      <tr>
+        <th>Característica</th>
+        <th>Opus Magnum</th>
+        <th>Threes!</th>
+        <th>Osmos</th>
+        <th>Juegos educ. típicos</th>
+        <th class="acid">Nigri</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Sesión &lt; 3 min (móvil)</td>
+        <td class="x">✗</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="partial">~</td>
+        <td class="check acid">✓</td>
+      </tr>
+      <tr>
+        <td>El jugador programa reglas</td>
+        <td class="check">✓</td>
+        <td class="x">✗</td>
+        <td class="x">✗</td>
+        <td class="x">✗</td>
+        <td class="check acid">✓</td>
+      </tr>
+      <tr>
+        <td>Comportamiento emergente real</td>
+        <td class="check">✓</td>
+        <td class="partial">~</td>
+        <td class="check">✓</td>
+        <td class="x">✗</td>
+        <td class="check acid">✓</td>
+      </tr>
+      <tr>
+        <td>Contenido científico riguroso</td>
+        <td class="x">✗</td>
+        <td class="x">✗</td>
+        <td class="x">✗</td>
+        <td class="partial">~</td>
+        <td class="check acid">✓</td>
+      </tr>
+      <tr>
+        <td>Adictividad arcade probada</td>
+        <td class="partial">~</td>
+        <td class="check">✓</td>
+        <td class="partial">~</td>
+        <td class="x">✗</td>
+        <td class="check acid">✓</td>
+      </tr>
+      <tr>
+        <td>Viabilidad equipo pequeño</td>
+        <td class="x">✗</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check acid">✓</td>
+      </tr>
+      <tr>
+        <td>Identidad narrativa chilena</td>
+        <td class="x">✗</td>
+        <td class="x">✗</td>
+        <td class="x">✗</td>
+        <td class="partial">~</td>
+        <td class="check acid">✓ Exclusivo</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<!-- ══ 05 — ARTE ══ -->
+<section class="section">
+<div class="wrap">
+  <div class="section-id">// 05 — Dirección de Arte</div>
+  <h2 class="section-title">Microscopía como<br><em>estética de juego</em></h2>
+  <p class="section-lead">La dirección de arte parte de una premisa radical: las imágenes reales del laboratorio SELFO son el referente visual principal. El juego se ve como un microscopio de fluorescencia — oscuro, preciso, bioluminiscente.</p>
+
+  <div class="tile-grid">
+    <div class="tile">
+      <div class="tile-icon tile-icon-acid">🎨</div>
+      <span class="tile-badge">Paleta cromática</span>
+      <h4>4 Colores, Infinita Atmósfera</h4>
+      <p>Negro profundo de fondo (#050a0f). Verde-ácido bioluminiscente para células activas (#c8ff00). Cian frío para señales inactivas (#00d4c8). Ámbar cálido para zonas de calor/sequía (#ff7b2e). Paleta estricta = producción ágil y coherencia visual total.</p>
+    </div>
+    <div class="tile">
+      <div class="tile-icon tile-icon-teal">✦</div>
+      <span class="tile-badge">Estilo gráfico</span>
+      <h4>Vectorial Orgánico — Sin Pixel Art</h4>
+      <p>Células como formas vectoriales translúcidas con bordes luminosos. Sin sprites complejos. Animaciones procedurales (partículas Godot 4). El movimiento celular es generado en tiempo real por el motor de simulación — no animado a mano. Esto reduce producción artística drásticamente.</p>
+    </div>
+    <div class="tile">
+      <div class="tile-icon tile-icon-blue">🌓</div>
+      <span class="tile-badge">Biomas por Capítulo</span>
+      <h4>El Ambiente Narra el Ciclo</h4>
+      <p>Cap. 1: azul agua (charco vivo). Cap. 2–3: verde frío (tejido en formación). Cap. 4: ocre seco (sequía). Cap. 5: transición oscuro → luz (eclosión). Cada capítulo requiere solo cambios de paleta y partículas ambientales.</p>
+    </div>
+    <div class="tile">
+      <div class="tile-icon tile-icon-orange">🐟</div>
+      <span class="tile-badge">Mascota</span>
+      <h4>Nigri — El Embrión Protagonista</h4>
+      <p>El embrión tiene una presencia visual en pantalla: una célula ligeramente más grande que las demás, con un núcleo propio. Reacciona a las decisiones del jugador con microanimaciones (latido, contracción, brillo). No habla — pero se siente vivo.</p>
+    </div>
+  </div>
+
+  <div class="concept-frame" style="margin-top:28px">
+    <div class="cf-label">// Eficiencia de producción de arte</div>
+    <h3>Por qué este estilo es estratégicamente inteligente</h3>
+    <p>La elección estética no es solo artística — es una decisión de producción. Las células son formas vectoriales simples generadas proceduralmente por el motor de partículas de Godot 4. El equipo diseña <strong>tipos de célula</strong> (5–8 variantes) y los <strong>efectos de señal</strong> (6 fichas). El motor hace el resto: posición, movimiento, agrupamiento, colisiones. Esto equivale al trabajo artístico de un juego de 50 sprites, pero con aspecto de un juego de 500.</p>
+  </div>
+</div>
+</section>
+
+<!-- ══ 06 — PLAN PME / PROTOTIPO ══ -->
+<section class="section">
+<div class="wrap">
+  <div class="section-id">// 06 — Propuesta PME Formal</div>
+  <h2 class="section-title">Proyecto de <em>Proyección<br>al Medio Externo</em></h2>
+  <p class="section-lead">Formulación del proyecto en términos de concurso público ANID — objetivos, resultados esperados, impacto en divulgación científica y justificación de financiamiento.</p>
+
+  <div class="pme-box">
+    <div class="pme-header">
+      <span class="pme-badge">Ficha del Proyecto</span>
+      <h3>Datos Generales PME</h3>
+    </div>
+    <div class="pme-body">
+      <div class="pme-row">
+        <div class="pme-key">Título del Proyecto</div>
+        <div class="pme-val"><strong>Nigri: Videojuego Móvil de Divulgación Científica sobre Autoorganización Biológica</strong></div>
+      </div>
+      <div class="pme-row">
+        <div class="pme-key">Institución</div>
+        <div class="pme-val">Núcleo Milenio SELFO (Self-Organization in Biological Systems)</div>
+      </div>
+      <div class="pme-row">
+        <div class="pme-key">Tipo de Producto</div>
+        <div class="pme-val">Videojuego educativo para dispositivos móviles (Android e iOS) de descarga gratuita.</div>
+      </div>
+      <div class="pme-row">
+        <div class="pme-key">Público Objetivo</div>
+        <div class="pme-val">Adolescentes 13–18 años (secundaria), docentes de ciencias y público general interesado en biología.</div>
+      </div>
+      <div class="pme-row">
+        <div class="pme-key">Plataforma Técnica</div>
+        <div class="pme-val"><strong>Motor Godot Engine 4</strong> (software libre, exportación nativa Android/iOS) · Lenguaje GDScript/C#.</div>
+      </div>
+      <div class="pme-row">
+        <div class="pme-key">Concepto Científico Central</div>
+        <div class="pme-val">Autoorganización celular, emergencia desde reglas locales, autómatas celulares biológicos, ciclo de vida del <em>Argolebias nigripinnis</em> y sus etapas de diapausa.</div>
+      </div>
+      <div class="pme-row">
+        <div class="pme-key">Duración del Proyecto</div>
+        <div class="pme-val"><strong>3–4 meses</strong> para prototipo funcional (1 capítulo jugable, 6–10 niveles, 4 fichas de señal implementadas).</div>
+      </div>
+      <div class="pme-row">
+        <div class="pme-key">Modelo de Distribución</div>
+        <div class="pme-val">Descarga gratuita en App Store y Google Play · Licencia Creative Commons No Comercial para uso educativo · Material pedagógico complementario para docentes.</div>
+      </div>
+      <div class="pme-row">
+        <div class="pme-key">Resultados Medibles</div>
+        <div class="pme-val">
+          <strong>① Prototipo jugable</strong> exportado a Android/iOS.<br>
+          <strong>② Al menos 1 capítulo completo</strong> del ciclo biológico (Primeras aguas) con 6–10 niveles.<br>
+          <strong>③ Bitácora SELFO</strong> con 5–10 entradas científicas validadas.<br>
+          <strong>④ Piloto de uso en al menos 1 liceo</strong> con feedback de estudiantes y docentes.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Plan de trabajo — Equipo de 2 personas + SELFO</h3>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-period">Mes 1</div>
+      <div class="tl-title">Prototipo de simulación y núcleo jugable</div>
+      <ul class="tl-list">
+        <li>Implementación en Godot de la simulación básica de células como partículas con movimiento y colisiones.</li>
+        <li>Implementación de fichas ATRACCIÓN y REPULSIÓN con feedback visual.</li>
+        <li>Prototipo de HUD con barras de Orden y Viabilidad.</li>
+      </ul>
+      <span class="tl-milestone">MVP de simulación celular en móvil</span>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-period">Mes 2</div>
+      <div class="tl-title">Expansión de mecánicas y niveles</div>
+      <ul class="tl-list">
+        <li>Implementación de fichas NUTRIENTE y DIAPAUSA.</li>
+        <li>Diseño e implementación de 3–5 niveles iniciales del Capítulo 1.</li>
+        <li>Primer pase de arte vectorial y efectos de partículas.</li>
+      </ul>
+      <span class="tl-milestone">Vertical slice jugable de Nigri</span>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-period">Mes 3</div>
+      <div class="tl-title">Pulido, Bitácora y piloto</div>
+      <ul class="tl-list">
+        <li>Pulido de UX móvil, ajustes de dificultad y tutorial implícito.</li>
+        <li>Integración de 5–10 entradas de Bitácora SELFO.</li>
+        <li>Builds para Android, pruebas internas y piloto con adolescentes.</li>
+      </ul>
+      <span class="tl-milestone">Prototipo listo para difusión SELFO</span>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dim"></div>
+      <div class="tl-period dim">Mes 4 (opcional)</div>
+      <div class="tl-title">QA extendido y ajustes</div>
+      <ul class="tl-list">
+        <li>Ajustes basados en feedback del piloto.</li>
+        <li>Mejoras de rendimiento en dispositivos de gama media-baja.</li>
+        <li>Preparación de material de difusión y video de gameplay.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Equipo propuesto</h3>
+  <div class="team-grid">
+    <div class="team-card">
+      <span class="team-emoji">👨‍💻</span>
+      <div class="team-role">Desarrollador Godot</div>
+      <div class="team-ded">50–75 % dedicación · 4 meses</div>
+      <div class="team-skills">Programación de simulación celular, implementación de fichas de señal, UI móvil, builds Android/iOS.</div>
+    </div>
+    <div class="team-card">
+      <span class="team-emoji">🎮</span>
+      <div class="team-role">Game Designer / UX</div>
+      <div class="team-ded">50–75 % dedicación · 4 meses</div>
+      <div class="team-skills">Diseño de niveles, balance de dificultad, textos in-game, wireframes de pantallas y flujo general.</div>
+    </div>
+    <div class="team-card">
+      <span class="team-emoji">🧪</span>
+      <div class="team-role">Asesor Científico SELFO</div>
+      <div class="team-ded">Consultoría por hitos</div>
+      <div class="team-skills">Validación de modelos biológicos, selección de imágenes de laboratorio, redacción de Bitácora SELFO.</div>
+    </div>
+  </div>
+
+  <h3>Presupuesto — Prototipo Nigri (tope $10.000.000 CLP)</h3>
+  <table class="budget-table">
+    <thead>
+      <tr>
+        <th>Ítem</th>
+        <th>Descripción</th>
+        <th>Monto (CLP)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Desarrollador Godot</td>
+        <td>Honorarios parcial (4 meses) · Programación de simulación, fichas de señal, UI básica, exportación Android/iOS.</td>
+        <td>$4.000.000</td>
+      </tr>
+      <tr>
+        <td>Game Designer / UX</td>
+        <td>Honorarios parcial (4 meses) · Diseño de niveles, flujo de juego, textos in-game, layout de pantallas.</td>
+        <td>$3.000.000</td>
+      </tr>
+      <tr>
+        <td>Asesor Científico SELFO</td>
+        <td>Consultoría por hitos · Validación científica del modelo, revisión de contenido de Bitácora.</td>
+        <td>$1.000.000</td>
+      </tr>
+      <tr>
+        <td>Sonido y Música</td>
+        <td>Freelance · 2 temas ambientales + set básico de SFX (colocación de ficha, eclosión, fallo, pulsos de Nigri).</td>
+        <td>$800.000</td>
+      </tr>
+      <tr>
+        <td>QA y Dispositivos de Prueba</td>
+        <td>Compra o arriendo de 1–2 teléfonos Android gama media-baja y testeo externo con adolescentes.</td>
+        <td>$700.000</td>
+      </tr>
+      <tr>
+        <td>Difusión Inicial</td>
+        <td>Material gráfico, video corto de gameplay, lanzamiento en redes del Núcleo Milenio SELFO.</td>
+        <td>$500.000</td>
+      </tr>
+      <tr class="total">
+        <td colspan="2">TOTAL PROTOTIPO Nigri (3–4 meses)</td>
+        <td>$10.000.000</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="mono" style="margin-top:8px">Godot Engine es software libre — costo de licencias de motor: $0.</p>
+</div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer class="footer">
+  <div class="footer-name">Nigri</div>
+  <div class="footer-meta">
+    Núcleo Milenio SELFO · Autoorganización en Sistemas Biológicos · Videojuego Móvil de Divulgación Científica<br>
+    Propuesta PME · ANID Chile · Prototipo desarrollado en Godot Engine 4 · Android / iOS
+  </div>
+</footer>
+
+</body>
+</html>
