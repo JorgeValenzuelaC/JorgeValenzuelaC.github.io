@@ -1,0 +1,2273 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nigri — Propuesta PME · Núcleo Milenio SELFO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+:root {
+  --bg:           #06080a;
+  --bg2:          #0a0d11;
+  --surface:      #0d1219;
+  --surface2:     #111823;
+  --border:       #1a2a3a;
+  --border-soft:  #131f2c;
+
+  --acid:         #c8ff00;
+  --acid-dim:     rgba(200,255,0,0.12);
+  --acid-glow:    rgba(200,255,0,0.07);
+
+  --teal:         #00d4c8;
+  --teal-dim:     rgba(0,212,200,0.10);
+  --blue:         #3a9eff;
+  --blue-dim:     rgba(58,158,255,0.10);
+  --orange:       #ff7b2e;
+  --orange-dim:   rgba(255,123,46,0.10);
+
+  --white:        #e6eff5;
+  --muted:        #4a6270;
+  --muted2:       #283848;
+
+  --mono:   'DM Mono', 'Courier New', monospace;
+  --sans:   'Inter', system-ui, sans-serif;
+  --display:'Syne', 'Inter', sans-serif;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── GRAIN OVERLAY ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 9999;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.55;
+}
+
+/* ── LAYOUT ── */
+.wrap { max-width: 1020px; margin: 0 auto; padding: 0 32px; }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding-bottom: 80px;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.hero-bg-word {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -54%);
+  font-family: var(--display);
+  font-size: clamp(140px, 26vw, 320px);
+  font-weight: 800;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(200,255,0,0.04);
+  white-space: nowrap;
+  letter-spacing: -0.06em;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.cell-canvas {
+  position: absolute; inset: 0; z-index: 0;
+}
+
+.hero-content { position: relative; z-index: 1; }
+
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 44px;
+  display: flex; align-items: center; gap: 14px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 28px; height: 1px;
+  background: var(--acid);
+}
+.hero-eyebrow span { color: var(--acid); }
+
+.hero-title {
+  font-family: var(--display);
+  font-size: clamp(80px, 16vw, 168px);
+  font-weight: 800;
+  line-height: 0.88;
+  letter-spacing: -0.05em;
+  color: var(--acid);
+  margin-bottom: 6px;
+}
+.hero-subtitle {
+  font-family: var(--display);
+  font-size: clamp(17px, 2.5vw, 26px);
+  font-weight: 400;
+  color: var(--white);
+  opacity: 0.55;
+  letter-spacing: -0.01em;
+  margin-bottom: 36px;
+}
+.hero-desc {
+  max-width: 540px;
+  font-size: 15px;
+  color: rgba(230,239,245,0.55);
+  line-height: 1.8;
+  margin-bottom: 44px;
+}
+
+.status-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  border: 1px solid;
+  border-radius: var(--radius-sm);
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.pill svg { flex-shrink: 0; }
+.pill-acid { color: var(--acid); border-color: rgba(200,255,0,0.2); background: var(--acid-glow); }
+.pill-teal { color: var(--teal); border-color: rgba(0,212,200,0.2); }
+.pill-blue { color: var(--blue); border-color: rgba(58,158,255,0.2); }
+.pill-muted { color: var(--muted); border-color: var(--muted2); }
+
+/* ── SECTIONS ── */
+.section { padding: 88px 0; border-bottom: 1px solid var(--border); }
+.section-id {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.section-title {
+  font-family: var(--display);
+  font-size: clamp(30px, 4.5vw, 50px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--white);
+  line-height: 1.04;
+  margin-bottom: 6px;
+}
+.section-title em { color: var(--acid); font-style: normal; }
+.section-lead {
+  font-size: 15px;
+  color: rgba(230,239,245,0.5);
+  max-width: 580px;
+  line-height: 1.75;
+  margin-bottom: 52px;
+}
+
+h3 {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 14px;
+  letter-spacing: -0.01em;
+}
+p { font-size: 14px; color: rgba(230,239,245,0.6); line-height: 1.8; margin-bottom: 14px; }
+p:last-child { margin-bottom: 0; }
+strong { color: var(--white); font-weight: 600; }
+
+/* ── CONCEPT FRAME ── */
+.concept-frame {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 36px 40px;
+  position: relative;
+  margin: 32px 0;
+}
+.concept-frame::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--acid), var(--teal));
+}
+.cf-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  color: var(--acid);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+/* ── INSIGHT ── */
+.insight {
+  background: linear-gradient(135deg, rgba(200,255,0,0.03), rgba(0,212,200,0.03));
+  border: 1px solid rgba(200,255,0,0.12);
+  padding: 28px 36px;
+  margin: 36px 0;
+}
+.insight blockquote {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--white);
+  line-height: 1.55;
+  letter-spacing: -0.01em;
+}
+.insight blockquote em { color: var(--acid); font-style: normal; }
+.insight-source {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  margin-top: 14px;
+  letter-spacing: 0.1em;
+}
+
+/* ── TILE GRID ── */
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 32px 0;
+}
+.tile {
+  background: var(--surface);
+  padding: 26px;
+  cursor: default;
+  transition: background 0.18s;
+}
+.tile:hover { background: var(--surface2); }
+
+.tile-icon {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 18px;
+  border: 1px solid;
+  color: var(--acid);
+}
+.tile-icon svg { width: 16px; height: 16px; }
+.tile-icon-acid  { background: rgba(200,255,0,0.06);  border-color: rgba(200,255,0,0.18);  color: var(--acid); }
+.tile-icon-teal  { background: rgba(0,212,200,0.06);  border-color: rgba(0,212,200,0.18);  color: var(--teal); }
+.tile-icon-orange{ background: rgba(255,123,46,0.06); border-color: rgba(255,123,46,0.18); color: var(--orange); }
+.tile-icon-blue  { background: rgba(58,158,255,0.06); border-color: rgba(58,158,255,0.18); color: var(--blue); }
+.tile-icon-muted { background: rgba(74,96,112,0.12);  border-color: var(--muted2);         color: var(--muted); }
+
+.tile h4 { font-family: var(--display); font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 8px; letter-spacing: 0.01em; }
+.tile p  { font-size: 12px; color: var(--muted); line-height: 1.6; margin: 0; }
+.tile .tile-badge {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 6px; display: block;
+}
+
+/* ── SIGNAL CARDS ── */
+.signal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 28px 0;
+}
+.signal-card {
+  background: var(--surface);
+  padding: 20px;
+  transition: background 0.18s;
+}
+.signal-card:hover { background: var(--surface2); }
+.signal-sym {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+  border: 1px solid;
+}
+.signal-sym svg { width: 15px; height: 15px; }
+.signal-name {
+  font-family: var(--display);
+  font-weight: 700; font-size: 12px;
+  color: var(--white); margin-bottom: 6px; letter-spacing: 0.03em;
+}
+.signal-bio { font-family: var(--mono); font-size: 10px; color: var(--muted); line-height: 1.55; }
+.signal-rule {
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid var(--border-soft);
+  font-size: 11px; color: rgba(230,239,245,0.45); line-height: 1.55;
+}
+
+/* colores por ficha */
+.s-blue   { background:rgba(58,158,255,0.06);  border-color:rgba(58,158,255,0.2);  color:var(--blue); }
+.s-red    { background:rgba(255,60,60,0.06);   border-color:rgba(255,60,60,0.2);   color:#ff4d4d; }
+.s-yellow { background:rgba(255,210,0,0.07);   border-color:rgba(255,210,0,0.2);   color:#ffd200; }
+.s-green  { background:rgba(0,210,120,0.06);   border-color:rgba(0,210,120,0.2);   color:#00d278; }
+.s-dark   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.1); color:rgba(230,239,245,0.5); }
+.s-teal   { background:rgba(0,212,200,0.06);   border-color:rgba(0,212,200,0.2);   color:var(--teal); }
+
+/* ── LOOP STEPS ── */
+.loop-row {
+  display: flex; align-items: stretch; gap: 0;
+  margin: 32px 0; overflow-x: auto;
+}
+.loop-step {
+  flex: 1; min-width: 130px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 22px 18px;
+  text-align: center;
+  position: relative;
+}
+.loop-step + .loop-step { border-left: none; }
+.loop-arrow {
+  position: absolute; right: -13px; top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 26px; height: 26px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--acid);
+}
+.loop-arrow svg { width: 10px; height: 10px; }
+.loop-step:last-child .loop-arrow { display: none; }
+.ls-num { font-family: var(--mono); font-size: 9px; color: var(--acid); letter-spacing: 0.18em; margin-bottom: 8px; text-transform: uppercase; }
+.ls-title { font-family: var(--display); font-size: 12px; font-weight: 700; color: var(--white); margin-bottom: 5px; }
+.ls-desc { font-size: 10px; color: var(--muted); line-height: 1.5; }
+
+/* ── MOCKUP DE NIVEL ── */
+.level-mockup {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  margin: 36px 0;
+  overflow: hidden;
+}
+.lm-header {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.lm-title {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
+}
+.lm-badge {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 3px 9px;
+  background: var(--acid-glow);
+  border: 1px solid rgba(200,255,0,0.2);
+  color: var(--acid);
+}
+.lm-body { display: grid; grid-template-columns: 1fr 320px; }
+.lm-field {
+  position: relative;
+  background: #040608;
+  min-height: 340px;
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+.lm-field-label {
+  position: absolute; top: 14px; left: 16px;
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+}
+.lm-hud { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+.hud-bar-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 7px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.hud-bar-label span { color: var(--acid); }
+.hud-track {
+  height: 4px; background: var(--border);
+  border-radius: 2px; overflow: hidden;
+}
+.hud-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
+.hud-order { background: var(--acid); width: 48%; }
+.hud-viab  { background: var(--teal); width: 72%; }
+
+.hand-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+}
+.hand-cards { display: flex; flex-direction: column; gap: 8px; }
+.hand-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  display: flex; align-items: center; gap: 10px;
+  cursor: default; transition: border-color 0.18s;
+}
+.hand-card:hover { border-color: var(--acid); }
+.hc-dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.hc-dot svg { width: 11px; height: 11px; }
+.hc-name { font-family: var(--display); font-size: 11px; font-weight: 700; color: var(--white); }
+.hc-bio  { font-family: var(--mono); font-size: 9px; color: var(--muted); line-height: 1.4; }
+
+.objective-box {
+  background: rgba(200,255,0,0.04);
+  border: 1px solid rgba(200,255,0,0.12);
+  padding: 12px 14px;
+}
+.obj-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--acid); margin-bottom: 6px;
+}
+.obj-text { font-size: 11px; color: rgba(230,239,245,0.6); line-height: 1.55; }
+
+.scoring-row { display: flex; gap: 8px; }
+.score-item {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border);
+  padding: 10px; text-align: center;
+}
+.score-stars { font-family: var(--mono); font-size: 14px; color: var(--acid); margin-bottom: 4px; }
+.score-cond  { font-family: var(--mono); font-size: 9px; color: var(--muted); line-height: 1.4; }
+
+/* ── NARRATIVE ARC ── */
+.arc-grid {
+  display: grid; grid-template-columns: 1fr; gap: 1px;
+  background: var(--border); border: 1px solid var(--border); margin: 32px 0;
+}
+.arc-item {
+  background: var(--surface);
+  display: grid; grid-template-columns: 110px 1fr;
+  align-items: start; padding: 18px 22px; gap: 20px;
+  transition: background 0.18s;
+}
+.arc-item:hover { background: var(--surface2); }
+.arc-meta { }
+.arc-chapter { font-family: var(--mono); font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 8px; }
+.arc-num {
+  font-family: var(--display); font-size: 28px; font-weight: 800;
+  color: transparent; -webkit-text-stroke: 1px rgba(200,255,0,0.2);
+  line-height: 1;
+}
+.arc-content h5 { font-family: var(--display); font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 5px; }
+.arc-content p { font-size: 12px; color: var(--muted); margin: 0; line-height: 1.6; }
+.arc-mech {
+  font-family: var(--mono); font-size: 9px; color: var(--acid);
+  margin-top: 8px; display: flex; align-items: center; gap: 6px;
+}
+.arc-mech svg { width: 10px; height: 10px; flex-shrink: 0; }
+
+/* ── UI LAYOUT DIAGRAM ── */
+.ui-diagram {
+  background: #040608;
+  border: 1px solid var(--border);
+  margin: 32px 0;
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.ui-diagram::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--teal), var(--acid));
+}
+.uid-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--teal); margin-bottom: 22px;
+}
+.uid-screen {
+  width: 100%; max-width: 340px;
+  margin: 0 auto;
+  background: #060a0e;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  padding: 0;
+}
+.uid-topbar {
+  background: rgba(200,255,0,0.04);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.uid-topbar-left { display: flex; flex-direction: column; gap: 5px; width: 55%; }
+.uid-bar-row { display: flex; align-items: center; gap: 8px; }
+.uid-bar-key { font-family: var(--mono); font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; min-width: 32px; }
+.uid-bar-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.uid-bar-fill-a { width: 48%; height: 100%; background: var(--acid); }
+.uid-bar-fill-t { width: 74%; height: 100%; background: var(--teal); }
+.uid-topbar-right { font-family: var(--mono); font-size: 8px; color: var(--muted); text-align: right; }
+.uid-chapter { color: var(--acid); font-size: 9px; }
+
+.uid-field {
+  position: relative;
+  height: 240px;
+  background: #030507;
+  display: flex; align-items: center; justify-content: center;
+}
+.uid-field-label {
+  position: absolute; top: 8px; left: 10px;
+  font-family: var(--mono); font-size: 7px;
+  text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted);
+}
+.uid-objective-ring {
+  position: absolute;
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  border: 1px dashed rgba(200,255,0,0.18);
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+}
+
+.uid-hand {
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+}
+.uid-hand-label {
+  font-family: var(--mono); font-size: 7px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 8px;
+}
+.uid-hand-row {
+  display: flex; gap: 7px;
+}
+.uid-chip {
+  flex: 1; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 3px; padding: 7px 6px; text-align: center;
+}
+.uid-chip-sym {
+  width: 22px; height: 22px; border-radius: 50%; border: 1px solid;
+  margin: 0 auto 5px; display: flex; align-items: center; justify-content: center;
+}
+.uid-chip-sym svg { width: 9px; height: 9px; }
+.uid-chip-name { font-family: var(--mono); font-size: 7px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.uid-annotations {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.uid-ann {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+}
+.uid-ann-num {
+  font-family: var(--mono); font-size: 9px; color: var(--acid);
+  letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 5px;
+}
+.uid-ann-text { font-size: 11px; color: rgba(230,239,245,0.5); line-height: 1.55; }
+
+/* ── TECH SPEC GRID ── */
+.spec-grid {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 0;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 28px 0;
+}
+.spec-row {
+  display: contents;
+}
+.spec-row:hover .spec-key,
+.spec-row:hover .spec-val { background: var(--surface2); }
+.spec-key {
+  background: var(--surface);
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-soft);
+  font-family: var(--mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted);
+  display: flex; align-items: flex-start; gap: 8px;
+  transition: background 0.15s;
+}
+.spec-key svg { width: 13px; height: 13px; flex-shrink: 0; margin-top: 1px; }
+.spec-val {
+  background: var(--surface);
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 13px; color: rgba(230,239,245,0.65); line-height: 1.6;
+  border-left: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.spec-val strong { color: var(--white); }
+.spec-val code {
+  font-family: var(--mono); font-size: 11px;
+  background: rgba(200,255,0,0.07);
+  border: 1px solid rgba(200,255,0,0.15);
+  color: var(--acid);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── COMPARISON TABLE ── */
+.gene-table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 28px 0; }
+.gene-table th {
+  background: var(--surface);
+  padding: 10px 14px;
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--muted); border: 1px solid var(--border); text-align: left;
+}
+.gene-table td {
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  vertical-align: middle;
+  color: rgba(230,239,245,0.55);
+}
+.gene-table td:first-child { color: var(--white); font-weight: 500; background: var(--surface); font-size: 13px; }
+.gene-table tr:nth-child(even) td:not(:first-child) { background: rgba(255,255,255,0.01); }
+.check { color: var(--acid); font-weight: 700; }
+.x     { color: var(--muted); }
+.partial { color: var(--orange); }
+
+/* ── KPIs ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 28px 0;
+}
+.kpi { background: var(--surface); padding: 22px 18px; text-align: center; }
+.kpi-val {
+  font-family: var(--mono);
+  font-size: clamp(26px, 3.5vw, 36px);
+  font-weight: 500; color: var(--acid); line-height: 1;
+  margin-bottom: 7px; letter-spacing: -0.02em;
+}
+.kpi-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; font-family: var(--mono); }
+
+/* ── BUDGET ── */
+.budget-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 28px 0; }
+.budget-table th {
+  background: var(--surface2); padding: 10px 16px;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--muted); border: 1px solid var(--border); text-align: left;
+}
+.budget-table td { padding: 12px 16px; border: 1px solid var(--border); color: rgba(230,239,245,0.6); }
+.budget-table td:first-child { color: var(--white); font-weight: 600; background: var(--surface); }
+.budget-table td:nth-child(2) { font-size: 12px; }
+.budget-table td:last-child { font-family: var(--mono); color: var(--acid); text-align: right; font-weight: 500; }
+.budget-table tr.total td { background: var(--surface2); font-weight: 700; border-top: 2px solid var(--acid); }
+.budget-table tr.total td:last-child { font-size: 15px; color: var(--acid); }
+
+/* ── TIMELINE ── */
+.timeline { position: relative; margin: 32px 0; }
+.timeline::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--border); }
+.tl-item { padding-left: 30px; padding-bottom: 34px; position: relative; }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-dot {
+  position: absolute; left: -5px; top: 3px;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--acid); border: 2px solid var(--bg);
+}
+.tl-dot.dim { background: var(--muted2); }
+.tl-period { font-family: var(--mono); font-size: 9px; color: var(--acid); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 5px; }
+.tl-period.dim { color: var(--muted); }
+.tl-title { font-family: var(--display); font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 10px; }
+.tl-list { list-style: none; margin: 0; }
+.tl-list li { font-size: 13px; color: var(--muted); padding: 3px 0 3px 16px; position: relative; line-height: 1.55; }
+.tl-list li::before { content: '→'; position: absolute; left: 0; color: var(--acid); opacity: 0.45; }
+.tl-milestone {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 10px; font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.12em; color: var(--acid);
+  background: var(--acid-glow); border: 1px solid rgba(200,255,0,0.18);
+  padding: 3px 10px;
+}
+.tl-milestone svg { width: 10px; height: 10px; }
+
+/* ── TEAM ── */
+.team-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 24px 0;
+}
+.team-card { background: var(--surface); padding: 22px; }
+.team-icon { margin-bottom: 12px; color: var(--acid); }
+.team-icon svg { width: 22px; height: 22px; }
+.team-role { font-family: var(--display); font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+.team-ded { font-family: var(--mono); font-size: 9px; color: var(--acid); margin-bottom: 10px; letter-spacing: 0.08em; }
+.team-skills { font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+/* ── PME BOX ── */
+.pme-box { background: var(--surface); border: 1px solid var(--border); margin: 32px 0; overflow: hidden; }
+.pme-header {
+  background: var(--surface2); padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+}
+.pme-header h3 { margin: 0; font-size: 13px; }
+.pme-badge {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+  padding: 3px 9px; background: var(--acid-glow); border: 1px solid rgba(200,255,0,0.18);
+  color: var(--acid);
+}
+.pme-body { padding: 0; }
+.pme-row {
+  display: grid; grid-template-columns: 180px 1fr;
+  padding: 13px 24px; gap: 16px;
+  border-bottom: 1px solid var(--border-soft); align-items: start;
+  transition: background 0.15s;
+}
+.pme-row:last-child { border-bottom: none; }
+.pme-row:hover { background: var(--surface2); }
+.pme-key { font-family: var(--mono); font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; padding-top: 2px; }
+.pme-val { font-size: 13px; color: var(--white); line-height: 1.65; }
+.pme-val strong { color: var(--acid); }
+
+/* ── BULLETS ── */
+ul.bullets { list-style: none; margin: 14px 0; }
+ul.bullets li {
+  font-size: 13px; color: rgba(230,239,245,0.6);
+  padding: 5px 0 5px 18px; position: relative;
+  border-bottom: 1px solid var(--border-soft);
+  line-height: 1.65;
+}
+ul.bullets li:last-child { border-bottom: none; }
+ul.bullets li::before { content: ''; position: absolute; left: 0; top: 13px; width: 7px; height: 1px; background: var(--acid); }
+
+/* ── DIVIDER ── */
+.hr { width: 42px; height: 1px; background: var(--border); margin: 32px 0; }
+
+/* ── FOOTER ── */
+.footer { padding: 64px 0; text-align: center; border-top: 1px solid var(--border); }
+.footer-name {
+  font-family: var(--display);
+  font-size: clamp(48px, 9vw, 96px);
+  font-weight: 800; letter-spacing: -0.05em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(200,255,0,0.2);
+  margin-bottom: 18px;
+}
+.footer-meta { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.12em; line-height: 2.2; }
+
+/* ── SIDE LABEL ── */
+.side-label {
+  position: fixed; right: 0; top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+  transform-origin: right center;
+  font-family: var(--mono); font-size: 8px;
+  letter-spacing: 0.35em; color: var(--muted2);
+  text-transform: uppercase; pointer-events: none; z-index: 100;
+}
+
+/* ── UTILS ── */
+.acid   { color: var(--acid); }
+.teal   { color: var(--teal); }
+.blue   { color: var(--blue); }
+.orange { color: var(--orange); }
+.mono   { font-family: var(--mono); font-size: 11px; }
+
+@media(max-width:720px){
+  .arc-item { grid-template-columns:1fr; gap:6px }
+  .arc-meta { display:none }
+  .pme-row  { grid-template-columns:1fr }
+  .loop-row { flex-direction:column }
+  .loop-arrow { display:none }
+  .lm-body  { grid-template-columns:1fr }
+  .uid-annotations { grid-template-columns:1fr }
+  .spec-grid{ grid-template-columns:1fr }
+  .spec-val { border-left:none }
+  .spec-key,.spec-val { border-bottom: 1px solid var(--border-soft); }
+}
+
+/* ── LEVEL SIMULATION ── */
+.level-sim{border:1px solid var(--border);background:var(--surface);margin:36px 0;overflow:hidden}
+.lsim-header{background:var(--surface2);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.lsim-tag{font-family:var(--mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--acid);background:var(--acid-glow);border:1px solid rgba(200,255,0,0.2);padding:3px 9px;flex-shrink:0}
+.lsim-title{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.08em;flex:1;min-width:140px}
+.lsim-live{font-family:var(--mono);font-size:9px;color:var(--acid);display:flex;align-items:center;gap:6px;letter-spacing:0.14em;margin-left:auto}
+.lsim-dot{width:6px;height:6px;border-radius:50%;background:var(--acid);animation:simlive 1.3s ease-in-out infinite}
+@keyframes simlive{0%,100%{opacity:1}50%{opacity:0.15}}
+#nigriSim{display:block;width:100%;height:auto;cursor:crosshair}
+.lsim-footer{border-top:1px solid var(--border);background:rgba(255,255,255,0.01);padding:11px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.lsim-foot-label{font-family:var(--mono);font-size:8px;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;flex-shrink:0}
+.lsim-hand{display:flex;gap:7px;flex-wrap:wrap}
+.lsim-card{background:var(--surface2);border:1px solid var(--border);padding:7px 11px;display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;transition:border-color 0.2s}
+.lsim-card:hover{border-color:rgba(200,255,0,0.25)}
+.lsim-card-dot{width:22px;height:22px;border-radius:50%;border:1px solid;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lsim-card-empty{opacity:0.28;font-style:italic}
+.lsim-hint{font-family:var(--mono);font-size:8px;color:var(--muted);padding:8px 20px;border-top:1px solid var(--border-soft);letter-spacing:0.08em;background:rgba(200,255,0,0.02)}
+
+/* Combo cards */
+.combo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);margin:28px 0}
+.combo-card{background:var(--surface);padding:22px;transition:background 0.15s}
+.combo-card:hover{background:var(--surface2)}
+.combo-header{display:flex;align-items:center;gap:7px;margin-bottom:13px;flex-wrap:wrap}
+.combo-tag{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 8px;border:1px solid}
+.combo-plus{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.combo-result{font-family:var(--display);font-size:13px;font-weight:700;color:var(--acid);margin-bottom:9px;line-height:1.3}
+.combo-card p{font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:10px}
+.combo-bio{font-family:var(--mono);font-size:9px;color:rgba(200,255,0,0.42);letter-spacing:0.04em;border-top:1px solid var(--border-soft);padding-top:9px;line-height:1.5}
+
+/* Emergent annotation */
+.emergent-box{background:var(--surface);border:1px solid var(--border);padding:0;margin:28px 0;overflow:hidden}
+.emergent-header{background:rgba(200,255,0,0.04);border-bottom:1px solid rgba(200,255,0,0.1);padding:11px 20px;display:flex;align-items:center;gap:10px}
+.emergent-tag{font-family:var(--mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--acid);background:var(--acid-glow);border:1px solid rgba(200,255,0,0.2);padding:2px 8px}
+.emergent-body{display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--border-soft)}
+.emergent-cell{background:var(--surface);padding:20px 24px}
+.emergent-cell h5{font-family:var(--display);font-size:12px;font-weight:700;color:var(--white);margin-bottom:6px}
+.emergent-cell p{font-size:12px;color:var(--muted);line-height:1.6;margin:0}
+.emergent-cell .e-num{font-family:var(--mono);font-size:22px;font-weight:500;color:var(--acid);line-height:1;margin-bottom:4px}
+@media(max-width:720px){.emergent-body{grid-template-columns:1fr}.lsim-title{display:none}}
+</style>
+</head>
+<body>
+<div class="side-label">SELFO · PME · ANID Chile</div>
+
+<!-- SVG DEFS -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+</svg>
+
+<!-- ══ HERO ══ -->
+<div class="hero wrap">
+  <div class="hero-bg-word">NIGRI</div>
+
+  <!-- Animated cell field SVG -->
+  <svg class="cell-canvas" viewBox="0 0 980 700" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <style>
+        .hc { animation: hcpulse 4.5s ease-in-out infinite; }
+        .hc1{animation-delay:0s}.hc2{animation-delay:.7s}.hc3{animation-delay:1.4s}
+        .hc4{animation-delay:2.1s}.hc5{animation-delay:2.8s}.hc6{animation-delay:.35s}
+        .hc7{animation-delay:1.05s}.hc8{animation-delay:1.75s}.hc9{animation-delay:3.15s}
+        @keyframes hcpulse{0%,100%{opacity:.1}50%{opacity:.22}}
+        .hl { animation: hldash 4s linear infinite; stroke-dasharray:3 8; }
+        @keyframes hldash { to { stroke-dashoffset:-44 } }
+        .hdot { animation: hdotpulse 3s ease-in-out infinite; }
+        .hd1{animation-delay:0s}.hd2{animation-delay:.5s}.hd3{animation-delay:1s}
+        .hd4{animation-delay:1.5s}.hd5{animation-delay:2s}.hd6{animation-delay:2.5s}
+        @keyframes hdotpulse{0%,100%{opacity:.25;r:2.8}50%{opacity:.75;r:3.8}}
+        .floater { animation: hfloat 7s ease-in-out infinite; transform-box:fill-box; transform-origin:center }
+        .floater2{ animation: hfloat 9s ease-in-out infinite reverse; transform-box:fill-box; transform-origin:center }
+        @keyframes hfloat{0%,100%{transform:translate(0,0)}33%{transform:translate(9px,-14px)}66%{transform:translate(-7px,9px)}}
+      </style>
+    </defs>
+    <circle class="hc hc1 floater"  cx="780" cy="155" r="78"  stroke="#c8ff00" stroke-width="0.7" fill="none"/>
+    <circle class="hc hc2"          cx="862" cy="238" r="44"  stroke="#c8ff00" stroke-width="0.5" fill="none"/>
+    <circle class="hc hc3 floater2" cx="700" cy="282" r="54"  stroke="#00d4c8" stroke-width="0.65" fill="none"/>
+    <circle class="hc hc4"          cx="824" cy="375" r="63"  stroke="#c8ff00" stroke-width="0.45" fill="none"/>
+    <circle class="hc hc5 floater"  cx="660" cy="178" r="29"  stroke="#00d4c8" stroke-width="0.55" fill="none"/>
+    <circle class="hc hc6"          cx="904" cy="138" r="37"  stroke="#c8ff00" stroke-width="0.45" fill="none"/>
+    <circle class="hc hc7 floater2" cx="752" cy="428" r="48"  stroke="#00d4c8" stroke-width="0.55" fill="none"/>
+    <circle class="hc hc8"          cx="608" cy="316" r="24"  stroke="#c8ff00" stroke-width="0.45" fill="none"/>
+    <circle class="hc hc9 floater"  cx="934" cy="306" r="40"  stroke="#00d4c8" stroke-width="0.38" fill="none"/>
+    <line class="hl" x1="780" y1="155" x2="700" y2="282" stroke="#c8ff00" stroke-width="0.35" opacity="0.2"/>
+    <line class="hl" x1="700" y1="282" x2="824" y2="375" stroke="#00d4c8" stroke-width="0.3"  opacity="0.18"/>
+    <line class="hl" x1="862" y1="238" x2="824" y2="375" stroke="#c8ff00" stroke-width="0.3"  opacity="0.18"/>
+    <line class="hl" x1="780" y1="155" x2="660" y2="178" stroke="#00d4c8" stroke-width="0.28" opacity="0.13"/>
+    <circle class="hdot hd1" cx="780" cy="155" r="2.8" fill="#c8ff00" filter="url(#glow)"/>
+    <circle class="hdot hd2" cx="862" cy="238" r="2.3" fill="#c8ff00"/>
+    <circle class="hdot hd3" cx="700" cy="282" r="2.6" fill="#00d4c8" filter="url(#glow)"/>
+    <circle class="hdot hd4" cx="824" cy="375" r="2.6" fill="#c8ff00"/>
+    <circle class="hdot hd5" cx="660" cy="178" r="1.8" fill="#00d4c8"/>
+    <circle class="hdot hd6" cx="752" cy="428" r="2.1" fill="#00d4c8"/>
+  </svg>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">Propuesta Formal PME · Concurso Público <span>ANID / Núcleo Milenio SELFO</span></div>
+    <div class="hero-title">Nigri</div>
+    <div class="hero-subtitle">Autoorganiza la Vida en un Charco Efímero</div>
+    <p class="hero-desc">Un videojuego arcade-puzzle para dispositivos móviles donde el jugador diseña las reglas de interacción celular del embrión de <em>Argolebias nigripinnis</em> y observa cómo la vida emerge desde el caos, en tiempo real.</p>
+    <div class="status-row">
+      <span class="pill pill-acid">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        Godot Engine 4 · 2D
+      </span>
+      <span class="pill pill-teal">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        Android · iOS
+      </span>
+      <span class="pill pill-blue">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Divulgación Científica
+      </span>
+      <span class="pill pill-muted">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Adolescentes 13–18 años
+      </span>
+      <span class="pill pill-muted">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Prototipo: 3–4 meses
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 01 — EL PROBLEMA ══ -->
+<section class="section">
+<div class="wrap">
+  <div class="section-id">// 01 — Problema y Oportunidad</div>
+  <h2 class="section-title">La ciencia compleja<br>necesita un <em>lenguaje</em> nuevo</h2>
+  <p class="section-lead">La autoorganización y la emergencia son centrales para entender la biología moderna — pero son contraintuitivos y difíciles de comunicar en formatos tradicionales.</p>
+
+  <div class="tile-grid">
+    <div class="tile">
+      <div class="tile-icon tile-icon-muted">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+      </div>
+      <span class="tile-badge">El problema</span>
+      <h4>La autoorganización es invisible en texto</h4>
+      <p>En libros y videos, la autoorganización se explica con metáforas. Comprender que el orden emerge desde reglas locales requiere <em>experimentar</em> el sistema, no leerlo.</p>
+    </div>
+    <div class="tile">
+      <div class="tile-icon tile-icon-muted">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      </div>
+      <span class="tile-badge">El problema</span>
+      <h4>Los juegos educativos no tienen mecánicas propias</h4>
+      <p>La mayoría de los <em>serious games</em> en ciencias son trivias disfrazadas de juego. Carecen de mecánicas que generen aprendizaje genuino por descubrimiento.</p>
+    </div>
+    <div class="tile">
+      <div class="tile-icon tile-icon-acid">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      </div>
+      <span class="tile-badge">La oportunidad</span>
+      <h4>El juego como laboratorio de fenómenos</h4>
+      <p>Si el mecanismo del juego <strong>es</strong> el fenómeno científico, el jugador aprende haciéndolo. Nigri hace esto: sus mecánicas son autoorganización real, no una ilustración de ella.</p>
+    </div>
+    <div class="tile">
+      <div class="tile-icon tile-icon-acid">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      </div>
+      <span class="tile-badge">La oportunidad</span>
+      <h4>SELFO tiene el organismo modelo ideal</h4>
+      <p>El <em>Argolebias nigripinnis</em> tiene embriones transparentes con pocas células y autoorganización literalmente visible bajo microscopio — el caso biológico perfecto para diseñar mecánicas.</p>
+    </div>
+  </div>
+
+  <div class="insight">
+    <blockquote>
+      El principio de diseño de Nigri: <em>el jugador no aprende sobre autoorganización — el jugador autoorganiza.</em> La mecánica central no ilustra el concepto científico; lo ejecuta.
+    </blockquote>
+    <div class="insight-source">// Principio de Diseño Central · MDA Framework (Hunicke, LeBlanc, Zubek, 2004) · GDC</div>
+  </div>
+</div>
+</section>
+
+<!-- ══ 02 — EL JUEGO ══ -->
+<section class="section">
+<div class="wrap">
+  <div class="section-id">// 02 — Diseño del Juego</div>
+  <h2 class="section-title"><em>Nigri</em> —<br>Concept & Vision</h2>
+  <p class="section-lead">Un arcade-puzzle de colocación táctica en tiempo real. Simple de aprender en 30 segundos. Profundidad emergente que escala a lo largo de 5 capítulos y 45 niveles.</p>
+
+  <div class="concept-frame">
+    <div class="cf-label">// Loop de juego — sesión de 90 segundos</div>
+    <h3>¿Cómo se juega?</h3>
+    <p>El jugador observa un campo de células embrionarias dispersas sobre un sustrato oscuro — estética de microscopía de fluorescencia. En la zona inferior de la pantalla hay una <strong>mano de 3–5 Fichas de Señal</strong>. La simulación corre en tiempo real: las células se mueven, se agrupan, se dividen o mueren según las fichas ya colocadas en el tablero.</p>
+    <p>El objetivo de cada nivel es guiar las células hacia un <strong>patrón objetivo</strong> visible como contorno tenue en la pantalla. El jugador arrastra fichas al tablero con un gesto de <em>drag &amp; drop</em>; las células responden de inmediato. Al alcanzar el patrón, el nivel concluye con una animación de eclosión. <strong>Menos fichas usadas = mayor puntuación</strong>.</p>
+    <p>Dos indicadores en tiempo real informan el estado del sistema: la <strong>barra de Orden</strong> mide la correspondencia entre la configuración celular actual y el patrón objetivo; la <strong>barra de Viabilidad</strong> refleja la masa celular disponible — si llega a cero, el nivel falla. El jugador gestiona ambas variables simultáneamente.</p>
+  </div>
+
+  <h3>Fichas de Señal — La mecánica central</h3>
+  <p>Cada ficha representa un proceso biológico real del embrión de <em>A. nigripinnis</em>. El nombre in-game es deliberadamente biológico; la Bitácora SELFO los explica cuando el jugador quiere saber más.</p>
+
+  <div class="signal-grid">
+    <div class="signal-card">
+      <div class="signal-sym s-blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>
+      </div>
+      <div class="signal-name">ATRACCIÓN</div>
+      <div class="signal-bio">Quimiotaxis dirigida hacia foco señalizador</div>
+      <div class="signal-rule">Células dentro del radio R migran hacia el centro de la ficha. Si la densidad supera el umbral ρ<sub>max</sub>, se forma un micro-émbolo que se disuelve gradualmente — enseñando límites de densidad.</div>
+    </div>
+    <div class="signal-card">
+      <div class="signal-sym s-red">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="5"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+      </div>
+      <div class="signal-name">REPULSIÓN</div>
+      <div class="signal-bio">Inhibición de contacto celular</div>
+      <div class="signal-rule">Empuja células hacia fuera del radio. Útil para despejar zonas o evitar que grupos entren en áreas con condiciones adversas activas.</div>
+    </div>
+    <div class="signal-card">
+      <div class="signal-sym s-yellow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      </div>
+      <div class="signal-name">INDUCTORA</div>
+      <div class="signal-bio">Señalización paracrina de corto alcance</div>
+      <div class="signal-rule">Células que atraviesan el área cambian de <em>tipo</em> (color / estado), modificando su respuesta a señales posteriores. Habilita combos: INDUCTORA → ATRACCIÓN genera migración selectiva por tipo.</div>
+    </div>
+    <div class="signal-card">
+      <div class="signal-sym s-green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      </div>
+      <div class="signal-name">NUTRIENTE</div>
+      <div class="signal-bio">Proliferación mitótica local</div>
+      <div class="signal-rule">Células que entran tienen probabilidad p de dividirse. Exceso de divisiones aumenta densidad → estrés → pérdida de viabilidad. Enseña homeostasis por retroalimentación.</div>
+    </div>
+    <div class="signal-card">
+      <div class="signal-sym s-dark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+      </div>
+      <div class="signal-name">BARRERA</div>
+      <div class="signal-bio">Lámina basal · borde tisular</div>
+      <div class="signal-rule">Pared suave impenetrable. Permite construir anillos, cámaras y canales. BARRERA + ATRACCIÓN crea un tejido toroidal; BARRERA + REPULSIÓN forma corredores de flujo unidireccional.</div>
+    </div>
+    <div class="signal-card">
+      <div class="signal-sym s-teal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+      </div>
+      <div class="signal-name">DIAPAUSA</div>
+      <div class="signal-bio">Arresto del ciclo celular</div>
+      <div class="signal-rule">Ralentiza o congela células en el área durante T segundos. Recurso limitado (2 usos/nivel). Transforma el concepto biológico de suspensión del desarrollo en herramienta táctica de rescate.</div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <blockquote>
+      La adictividad emerge de la <em>interfaz entre reglas</em>: ATRACCIÓN + BARRERA crea un tejido toroidal. INDUCTORA + NUTRIENTE genera proliferación selectiva. El jugador descubre esto — el juego no se lo dice. <em>Eso</em> es emergencia.
+    </blockquote>
+    <div class="insight-source">// Diseño por descubrimiento · Referencia: SpaceChem (Zachtronics, 2011) · Threes! (Sirvo LLC, 2014)</div>
+  </div>
+
+  <h3 style="margin-top:48px">Loop arcade — 5 pasos, 90 segundos</h3>
+
+  <div class="loop-row">
+    <div class="loop-step">
+      <div class="loop-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></div>
+      <div class="ls-num">01</div>
+      <div class="ls-title">Observar</div>
+      <div class="ls-desc">Leer el campo inicial. Ver movimiento espontáneo. Identificar distancia al patrón objetivo.</div>
+    </div>
+    <div class="loop-step">
+      <div class="loop-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></div>
+      <div class="ls-num">02</div>
+      <div class="ls-title">Planificar</div>
+      <div class="ls-desc">Evaluar la mano de fichas. Prever combos de señal. Decidir punto de intervención mínimo.</div>
+    </div>
+    <div class="loop-step">
+      <div class="loop-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></div>
+      <div class="ls-num">03</div>
+      <div class="ls-title">Colocar</div>
+      <div class="ls-desc">Drag &amp; drop de fichas. Radio de efecto visible al soltar. Respuesta celular inmediata.</div>
+    </div>
+    <div class="loop-step">
+      <div class="loop-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></div>
+      <div class="ls-num">04</div>
+      <div class="ls-title">Ajustar</div>
+      <div class="ls-desc">Reaccionar a efectos emergentes. Reposicionar fichas. Usar DIAPAUSA para ganar tiempo.</div>
+    </div>
+    <div class="loop-step">
+      <div class="ls-num">05</div>
+      <div class="ls-title">Resolver</div>
+      <div class="ls-desc">Barra de Orden al 100 %. Animación de eclosión. Puntuación por eficiencia y viabilidad.</div>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<!-- ══ 03 — MAQUETA DE NIVEL ══ -->
+<section class="section">
+<div class="wrap">
+  <div class="section-id">// 03 — Maqueta de Nivel</div>
+  <h2 class="section-title">Nivel 1–3: <em>Primera Mórula</em></h2>
+  <p class="section-lead">Distribución exacta de la interfaz y condiciones de juego para el tercer nivel del Capítulo 1. Sirve como referencia canónica de diseño para el prototipo en Godot.</p>
+
+  <div class="level-mockup">
+    <div class="lm-header">
+      <div class="lm-title">// Nivel 1-03 · Primera Mórula · Cap. 01 — Primeras lluvias</div>
+      <div class="lm-badge">Maqueta UI</div>
+    </div>
+    <div class="lm-body">
+
+      <!-- Campo de simulación -->
+      <div class="lm-field">
+        <div class="lm-field-label">// Campo de simulación 2D · Partículas RigidBody2D · Godot 4</div>
+
+        <svg viewBox="0 0 480 340" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0">
+          <defs>
+            <style>
+              .cc{animation:cpulse 3s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+              @keyframes cpulse{0%,100%{opacity:0.7}50%{opacity:1}}
+              .cca{animation-delay:0s}.ccb{animation-delay:.4s}.ccc{animation-delay:.8s}
+              .ccd{animation-delay:1.2s}.cce{animation-delay:1.6s}.ccf{animation-delay:2s}
+              .ccg{animation-delay:.2s}.cch{animation-delay:.6s}.cci{animation-delay:1s}
+              .ccj{animation-delay:1.4s}.cck{animation-delay:1.8s}.ccl{animation-delay:2.2s}
+              .arrow-anim{animation:arrowpulse 2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+              @keyframes arrowpulse{0%,100%{opacity:0.25}50%{opacity:0.6}}
+            </style>
+            <radialGradient id="bg-grad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#040811"/>
+              <stop offset="100%" stop-color="#020407"/>
+            </radialGradient>
+            <radialGradient id="signal-glow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#3a9eff" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="#3a9eff" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="pattern-glow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#c8ff00" stop-opacity="0.06"/>
+              <stop offset="100%" stop-color="#c8ff00" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="cell-glow"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+
+          <!-- Background -->
+          <rect width="480" height="340" fill="url(#bg-grad)"/>
+
+          <!-- Pattern objective ring -->
+          <circle cx="240" cy="170" r="55" fill="url(#pattern-glow)" stroke="#c8ff00" stroke-width="0.6" stroke-dasharray="3 6" opacity="0.35"/>
+          <text x="240" y="238" font-family="DM Mono, monospace" font-size="7" fill="#c8ff00" opacity="0.4" text-anchor="middle" letter-spacing="1">PATRÓN OBJETIVO</text>
+
+          <!-- Signal ATRACCIÓN placed at center -->
+          <circle cx="240" cy="170" r="46" fill="url(#signal-glow)" stroke="#3a9eff" stroke-width="0.5" stroke-dasharray="2 5" opacity="0.5"/>
+          <circle cx="240" cy="170" r="7" fill="#0d2d50" stroke="#3a9eff" stroke-width="1.2"/>
+          <line x1="240" y1="165" x2="240" y2="162" stroke="#3a9eff" stroke-width="1.2"/>
+          <line x1="240" y1="175" x2="240" y2="178" stroke="#3a9eff" stroke-width="1.2"/>
+          <line x1="235" y1="170" x2="232" y2="170" stroke="#3a9eff" stroke-width="1.2"/>
+          <line x1="245" y1="170" x2="248" y2="170" stroke="#3a9eff" stroke-width="1.2"/>
+          <text x="240" y="193" font-family="DM Mono, monospace" font-size="7" fill="#3a9eff" opacity="0.7" text-anchor="middle" letter-spacing="1">ATRACCIÓN</text>
+
+          <!-- Cells – dispersed around, some already migrating inward -->
+          <!-- Outer ring – dispersed -->
+          <circle class="cc cca" cx="130" cy="90"  r="5.5" fill="none" stroke="#c8ff00" stroke-width="1" filter="url(#cell-glow)"/>
+          <circle cx="130" cy="90" r="1.8" fill="#c8ff00" opacity="0.6"/>
+
+          <circle class="cc ccb" cx="340" cy="80"  r="5.5" fill="none" stroke="#c8ff00" stroke-width="1" filter="url(#cell-glow)"/>
+          <circle cx="340" cy="80" r="1.8" fill="#c8ff00" opacity="0.6"/>
+
+          <circle class="cc ccc" cx="390" cy="200" r="5.5" fill="none" stroke="#c8ff00" stroke-width="1" filter="url(#cell-glow)"/>
+          <circle cx="390" cy="200" r="1.8" fill="#c8ff00" opacity="0.6"/>
+
+          <circle class="cc ccd" cx="90"  cy="230" r="5.5" fill="none" stroke="#c8ff00" stroke-width="1" filter="url(#cell-glow)"/>
+          <circle cx="90"  cy="230" r="1.8" fill="#c8ff00" opacity="0.6"/>
+
+          <circle class="cc cce" cx="360" cy="295" r="5.5" fill="none" stroke="#c8ff00" stroke-width="1" filter="url(#cell-glow)"/>
+          <circle cx="360" cy="295" r="1.8" fill="#c8ff00" opacity="0.6"/>
+
+          <circle class="cc ccf" cx="110" cy="300" r="5.5" fill="none" stroke="#c8ff00" stroke-width="1" filter="url(#cell-glow)"/>
+          <circle cx="110" cy="300" r="1.8" fill="#c8ff00" opacity="0.6"/>
+
+          <!-- Mid-ring – migrating -->
+          <circle class="cc ccg" cx="175" cy="125" r="5"   fill="rgba(200,255,0,0.08)" stroke="#c8ff00" stroke-width="1" filter="url(#cell-glow)"/>
+          <circle cx="175" cy="125" r="1.6" fill="#c8ff00" opacity="0.8"/>
+
+          <circle class="cc cch" cx="310" cy="120" r="5"   fill="rgba(200,255,0,0.08)" stroke="#c8ff00" stroke-width="1" filter="url(#cell-glow)"/>
+          <circle cx="310" cy="120" r="1.6" fill="#c8ff00" opacity="0.8"/>
+
+          <circle class="cc cci" cx="330" cy="240" r="5"   fill="rgba(200,255,0,0.08)" stroke="#c8ff00" stroke-width="1" filter="url(#cell-glow)"/>
+          <circle cx="330" cy="240" r="1.6" fill="#c8ff00" opacity="0.8"/>
+
+          <circle class="cc ccj" cx="160" cy="248" r="5"   fill="rgba(200,255,0,0.08)" stroke="#c8ff00" stroke-width="1" filter="url(#cell-glow)"/>
+          <circle cx="160" cy="248" r="1.6" fill="#c8ff00" opacity="0.8"/>
+
+          <!-- Inner ring – near target -->
+          <circle class="cc cck" cx="205" cy="152" r="5"   fill="rgba(200,255,0,0.15)" stroke="#c8ff00" stroke-width="1.2" filter="url(#cell-glow)"/>
+          <circle cx="205" cy="152" r="2" fill="#c8ff00" opacity="1"/>
+
+          <circle class="cc ccl" cx="274" cy="158" r="5"   fill="rgba(200,255,0,0.15)" stroke="#c8ff00" stroke-width="1.2" filter="url(#cell-glow)"/>
+          <circle cx="274" cy="158" r="2" fill="#c8ff00" opacity="1"/>
+
+          <!-- Migration arrows (faint) -->
+          <line class="arrow-anim" x1="142" y1="103" x2="192" y2="138" stroke="#c8ff00" stroke-width="0.5" stroke-dasharray="2 4"/>
+          <line class="arrow-anim" x1="330" y1="95"  x2="294" y2="130" stroke="#c8ff00" stroke-width="0.5" stroke-dasharray="2 4"/>
+          <line class="arrow-anim" x1="372" y1="210" x2="322" y2="232" stroke="#c8ff00" stroke-width="0.5" stroke-dasharray="2 4"/>
+
+          <!-- Timer bar at top -->
+          <rect x="20" y="14" width="440" height="3" rx="1.5" fill="#1a2a3a"/>
+          <rect x="20" y="14" width="260" height="3" rx="1.5" fill="#c8ff00" opacity="0.6"/>
+          <text x="466" y="18" font-family="DM Mono, monospace" font-size="8" fill="#4a6270" text-anchor="end" letter-spacing="0.5">TIEMPO</text>
+        </svg>
+      </div>
+
+      <!-- HUD lateral -->
+      <div class="lm-hud">
+
+        <div class="objective-box">
+          <div class="obj-label">// Objetivo del nivel</div>
+          <div class="obj-text">Compactar las 12 células dispersas en una mórula esférica en la zona marcada. 90 segundos. Mínimo de fichas para 3 estrellas.</div>
+        </div>
+
+        <div>
+          <div class="hud-bar-label">Orden <span>48%</span></div>
+          <div class="hud-track"><div class="hud-fill hud-order"></div></div>
+        </div>
+        <div>
+          <div class="hud-bar-label">Viabilidad <span>72%</span></div>
+          <div class="hud-track"><div class="hud-fill hud-viab"></div></div>
+        </div>
+
+        <div>
+          <div class="hand-label">// Mano de fichas (3/5 disponibles)</div>
+          <div class="hand-cards">
+            <div class="hand-card">
+              <div class="hc-dot s-blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>
+              </div>
+              <div><div class="hc-name">ATRACCIÓN</div><div class="hc-bio">Colocada · Radio activo</div></div>
+            </div>
+            <div class="hand-card">
+              <div class="hc-dot s-green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+              </div>
+              <div><div class="hc-name">NUTRIENTE</div><div class="hc-bio">En mano · Disponible</div></div>
+            </div>
+            <div class="hand-card">
+              <div class="hc-dot s-teal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              </div>
+              <div><div class="hc-name">DIAPAUSA</div><div class="hc-bio">Comodín · 2 usos restantes</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="hand-label">// Sistema de puntuación</div>
+          <div class="scoring-row">
+            <div class="score-item">
+              <div class="score-stars">★★★</div>
+              <div class="score-cond">1 ficha usada · &lt;60 s</div>
+            </div>
+            <div class="score-item">
+              <div class="score-stars">★★</div>
+              <div class="score-cond">2 fichas · en tiempo</div>
+            </div>
+            <div class="score-item">
+              <div class="score-stars">★</div>
+              <div class="score-cond">Cualquier solución válida</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Anotaciones de UX -->
+  <h3 style="margin-top:32px">Distribución de la interfaz móvil</h3>
+  <p>La pantalla se divide en tres zonas verticales no superpuestas, con proporciones ajustadas para pulgar-alcance en dispositivos de 5–6.5 pulgadas.</p>
+
+  <div class="ui-diagram">
+    <div class="uid-label">// Wireframe pantalla retrato · 390 × 844 px (iPhone 14 reference)</div>
+
+    <div class="uid-screen">
+      <!-- Top HUD -->
+      <div class="uid-topbar">
+        <div class="uid-topbar-left">
+          <div class="uid-bar-row">
+            <div class="uid-bar-key">Orden</div>
+            <div class="uid-bar-track"><div class="uid-bar-fill-a"></div></div>
+          </div>
+          <div class="uid-bar-row">
+            <div class="uid-bar-key">Viabl.</div>
+            <div class="uid-bar-track"><div class="uid-bar-fill-t"></div></div>
+          </div>
+        </div>
+        <div class="uid-topbar-right">
+          <div class="uid-chapter">CAP. 01</div>
+          <div>NIV. 03</div>
+          <div>0:58</div>
+        </div>
+      </div>
+
+      <!-- Field -->
+      <div class="uid-field">
+        <div class="uid-field-label">// Campo de simulación · 72% del viewport</div>
+        <div class="uid-objective-ring"></div>
+        <svg viewBox="0 0 200 130" width="200" height="130" style="position:relative;z-index:1">
+          <circle cx="100" cy="65" r="1.5" fill="#c8ff00" opacity="0.9"/>
+          <circle cx="70"  cy="45" r="1.5" fill="#c8ff00" opacity="0.7"/>
+          <circle cx="130" cy="48" r="1.5" fill="#c8ff00" opacity="0.7"/>
+          <circle cx="65"  cy="82" r="1.5" fill="#c8ff00" opacity="0.65"/>
+          <circle cx="135" cy="85" r="1.5" fill="#c8ff00" opacity="0.65"/>
+          <circle cx="52"  cy="55" r="1.5" fill="#c8ff00" opacity="0.5"/>
+          <circle cx="148" cy="60" r="1.5" fill="#c8ff00" opacity="0.5"/>
+          <circle cx="88"  cy="38" r="1.5" fill="#c8ff00" opacity="0.5"/>
+          <circle cx="112" cy="38" r="1.5" fill="#c8ff00" opacity="0.5"/>
+          <circle cx="100" cy="92" r="1.5" fill="#c8ff00" opacity="0.45"/>
+          <circle cx="80"  cy="95" r="1.5" fill="#c8ff00" opacity="0.4"/>
+          <circle cx="120" cy="95" r="1.5" fill="#c8ff00" opacity="0.4"/>
+        </svg>
+      </div>
+
+      <!-- Hand -->
+      <div class="uid-hand">
+        <div class="uid-hand-label">// Mano de fichas · 28% inferior · zona de pulgar</div>
+        <div class="uid-hand-row">
+          <div class="uid-chip">
+            <div class="uid-chip-sym s-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="9" height="9"><circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg></div>
+            <div class="uid-chip-name">ATRAC.</div>
+          </div>
+          <div class="uid-chip">
+            <div class="uid-chip-sym s-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="9" height="9"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
+            <div class="uid-chip-name">NUTR.</div>
+          </div>
+          <div class="uid-chip">
+            <div class="uid-chip-sym s-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="9" height="9"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></div>
+            <div class="uid-chip-name">DIAP.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Annotations -->
+    <div class="uid-annotations">
+      <div class="uid-ann">
+        <div class="uid-ann-num">HUD SUPERIOR · 8% pantalla</div>
+        <div class="uid-ann-text">Barras de Orden y Viabilidad + temporizador + número de nivel. Siempre visible, mínimo espacio. Lectura de un vistazo sin quitar la vista del campo.</div>
+      </div>
+      <div class="uid-ann">
+        <div class="uid-ann-num">CAMPO · 64% pantalla</div>
+        <div class="uid-ann-text">Zona de simulación táctil. Tap corto: tooltip de ficha colocada. Drag &amp; drop para mover fichas activas. Pinch 2× para zoom suave. El campo nunca está bloqueado por UI.</div>
+      </div>
+      <div class="uid-ann">
+        <div class="uid-ann-num">MANO DE FICHAS · 28% pantalla</div>
+        <div class="uid-ann-text">Panel inferior fijo en zona de alcance natural del pulgar. Chips arrastables hacia el campo. Tap largo: descripción expandida de la ficha. Feedback háptico al soltar.</div>
+      </div>
+      <div class="uid-ann">
+        <div class="uid-ann-num">GESTOS DE INTERACCIÓN</div>
+        <div class="uid-ann-text"><strong>Drag:</strong> mover ficha a campo. <strong>Tap en ficha activa:</strong> eliminarla. <strong>Pinch:</strong> zoom ×1–×2. <strong>Tap doble campo:</strong> centrar vista. <strong>Tap largo chip:</strong> tooltip expandido.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<!-- ══ 04 — ARQUITECTURA TÉCNICA ══ -->
+<section class="section">
+<div class="wrap">
+  <div class="section-id">// 04 — Arquitectura Técnica</div>
+  <h2 class="section-title">Especificaciones<br><em>técnicas</em> del prototipo</h2>
+  <p class="section-lead">Decisiones de implementación en Godot 4 que determinan el scope del prototipo y garantizan viabilidad para un equipo de dos personas en 3–4 meses.</p>
+
+  <div class="spec-grid">
+    <div class="spec-row">
+      <div class="spec-key">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        Motor
+      </div>
+      <div class="spec-val"><strong>Godot Engine 4.x</strong> — GDScript · Software libre, costo de licencia $0. Exportación nativa a Android e iOS desde el mismo proyecto. Sistema de nodos para encapsular la lógica de cada ficha como escena reutilizable.</div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-key">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Simulación
+      </div>
+      <div class="spec-val">Células como nodos <code>RigidBody2D</code> con <code>PhysicsMaterial</code> personalizado. Fuerzas de señal implementadas como <code>Area2D</code>: en cada frame se aplica <code>apply_central_force()</code> proporcional a la distancia. Sin integración numérica manual — usa el solver de Godot.</div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-key">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Fichas de señal
+      </div>
+      <div class="spec-val">Cada ficha es una <strong>escena Godot independiente</strong> (<code>.tscn</code>) con un <code>Resource</code> de configuración (<code>radius</code>, <code>force_magnitude</code>, <code>type</code>). Añadir una ficha nueva = duplicar escena + editar Resource. Zero código duplicado. Las fichas se instancian dinámicamente al soltar sobre el campo.</div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-key">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        Patrón objetivo
+      </div>
+      <div class="spec-val">Definido como <strong>array de posiciones normalizadas</strong> en JSON por nivel. El evaluador de Orden calcula la distancia media entre las células actuales y el conjunto de puntos del patrón usando la asignación óptima (algoritmo húngaro simplificado para N≤20). Actualiza en cada frame la barra de Orden.</div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-key">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+        Partículas
+      </div>
+      <div class="spec-val">El movimiento celular de fondo (células sin señal activa) usa <strong>Godot CPUParticles2D</strong> con ruido Simplex para simular motilidad aleatoria. Cada célula tiene un <code>velocity</code> perturbado por el ruido frame a frame. Visualmente idéntico a microscopía en vivo.</div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-key">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        Arte procedural
+      </div>
+      <div class="spec-val">Las células son <code>CanvasItem</code> con shader personalizado (GLSL via Godot). <strong>Sin sprites rasterizados</strong> para el gameplay: círculo base + glow radial + núcleo interno, todo generado en tiempo real. El artista diseña 5–8 variantes de shader (parámetros de color y brillo), no sprites individuales.</div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-key">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        Móvil
+      </div>
+      <div class="spec-val">Input manejado con <code>InputEventScreenTouch</code> y <code>InputEventScreenDrag</code>. El drag &amp; drop de fichas usa <code>Control.gui_input()</code>. Resolución base: <strong>390×844 px</strong> (iPhone 14). Escala automática con <code>stretch_mode = canvas_items</code>. Target: Android API 26+, iOS 14+. Haptics vía <code>Input.vibrate_handheld()</code>.</div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-key">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Datos de nivel
+      </div>
+      <div class="spec-val">Cada nivel es un archivo <code>.json</code> con: <code>cells_initial</code> (posiciones), <code>pattern_target</code> (posiciones objetivo), <code>hand</code> (IDs de fichas disponibles), <code>time_limit</code>, <code>star_thresholds</code>. El <code>LevelLoader</code> en GDScript instancia el nivel desde el JSON. Facilita diseño de niveles sin recompilar.</div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-key">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Rendimiento
+      </div>
+      <div class="spec-val">Target: <strong>60 fps en gama media-baja</strong> (Snapdragon 665 / A13 Bionic). Máximo de células activas por nivel: <strong>N = 30</strong> (prototipo). Pool de nodos con <code>ObjectPool</code> para evitar instanciación en runtime. Profiling con Godot Debugger antes de cada build de QA.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ══ 05 — NARRATIVA ══ -->
+<section class="section">
+<div class="wrap">
+  <div class="section-id">// 05 — Ciclo Biológico & Estructura</div>
+  <h2 class="section-title">Del charco a la <em>eclosión</em></h2>
+  <p class="section-lead">La estructura de Nigri sigue el ciclo biológico real del <em>A. nigripinnis</em>. Cada capítulo es una etapa verificada — y cada etapa introduce una mecánica nueva.</p>
+
+  <div class="arc-grid">
+    <div class="arc-item">
+      <div class="arc-meta">
+        <div class="arc-chapter">Cap. 01</div>
+        <div class="arc-num">01</div>
+      </div>
+      <div class="arc-content">
+        <h5>Primeras lluvias</h5>
+        <p>Los huevos enterrados eclosionan al retornar el agua. Los embriones activan su desarrollo. El laboratorio SELFO enciende sus microscopios.</p>
+        <div class="arc-mech">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Mecánicas introducidas: ATRACCIÓN · REPULSIÓN — Niveles 1–9, 60–90 s/nivel
+        </div>
+      </div>
+    </div>
+    <div class="arc-item">
+      <div class="arc-meta">
+        <div class="arc-chapter">Cap. 02</div>
+        <div class="arc-num">02</div>
+      </div>
+      <div class="arc-content">
+        <h5>Organización temprana</h5>
+        <p>Las células se organizan en tejidos. Aparecen señales que inducen cambios de tipo celular y proliferación. Primeros combos de señal disponibles.</p>
+        <div class="arc-mech">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Mecánicas introducidas: INDUCTORA · NUTRIENTE — Primeros combos de señal
+        </div>
+      </div>
+    </div>
+    <div class="arc-item">
+      <div class="arc-meta">
+        <div class="arc-chapter">Cap. 03</div>
+        <div class="arc-num">03</div>
+      </div>
+      <div class="arc-content">
+        <h5>Diapausa I — Dispersión controlada</h5>
+        <p>Las células se dispersan por el huevo. El desarrollo se pausa para sobrevivir condiciones inciertas. La precisión táctica se vuelve crítica.</p>
+        <div class="arc-mech">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Mecánicas introducidas: BARRERA · modo DIAPAUSA táctica — Dificultad escala
+        </div>
+      </div>
+    </div>
+    <div class="arc-item">
+      <div class="arc-meta">
+        <div class="arc-chapter">Cap. 04</div>
+        <div class="arc-num">04</div>
+      </div>
+      <div class="arc-content">
+        <h5>Diapausa II — Sequía</h5>
+        <p>El charco se seca. El contador de Sequía activa pérdida de viabilidad continua. El jugador debe actuar rápido o perder masa celular crítica.</p>
+        <div class="arc-mech">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Mecánicas introducidas: contador SEQUÍA · mano aleatoria tipo roguelite
+        </div>
+      </div>
+    </div>
+    <div class="arc-item">
+      <div class="arc-meta">
+        <div class="arc-chapter">Cap. 05</div>
+        <div class="arc-num">05</div>
+      </div>
+      <div class="arc-content">
+        <h5>Diapausa III — Eclosión</h5>
+        <p>El embrión sincroniza su eclosión con el retorno del agua. Todas las fichas disponibles. Patrones complejos. Nivel final tipo boss.</p>
+        <div class="arc-mech">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Mecánicas: todas combinadas — Nivel ECLOSIÓN como cierre narrativo
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept-frame">
+    <div class="cf-label">// Bitácora SELFO — contenido científico voluntario</div>
+    <h3>Divulgación sin interrumpir el flujo de juego</h3>
+    <p>Al completar cada capítulo se desbloquea una entrada en la Bitácora SELFO — sección informativa de acceso voluntario con imágenes reales de microscopía del embrión, explicación científica de la mecánica del capítulo (quimiotaxis, diapausa, autoorganización) y datos publicados por el equipo SELFO. El jugador la consulta cuando ya está enganchado — no antes.</p>
+  </div>
+</div>
+</section>
+
+<!-- ══ 06 — ARTE ══ -->
+<section class="section">
+<div class="wrap">
+  <div class="section-id">// 06 — Dirección de Arte</div>
+  <h2 class="section-title">Microscopía como<br><em>estética de juego</em></h2>
+  <p class="section-lead">Las imágenes reales del laboratorio SELFO son el referente visual. El juego se ve como un microscopio de fluorescencia — oscuro, preciso, bioluminiscente.</p>
+
+  <div class="tile-grid">
+    <div class="tile">
+      <div class="tile-icon tile-icon-acid">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="m15 9-3 3"/></svg>
+      </div>
+      <span class="tile-badge">Paleta cromática</span>
+      <h4>4 colores · Coherencia total</h4>
+      <p><code>#050a0f</code> fondo. <code>#c8ff00</code> células activas. <code>#00d4c8</code> señales inactivas. <code>#ff7b2e</code> zonas de sequía. Paleta estricta = producción ágil y coherencia visual garantizada.</p>
+    </div>
+    <div class="tile">
+      <div class="tile-icon tile-icon-teal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
+      </div>
+      <span class="tile-badge">Estilo gráfico</span>
+      <h4>Vectorial procedural · Sin sprites rasterizados</h4>
+      <p>Células como formas vectoriales translúcidas con bordes luminosos generadas por shaders en Godot 4. El motor produce posición, movimiento y agrupamiento — el artista diseña 5–8 variantes de shader, no sprites.</p>
+    </div>
+    <div class="tile">
+      <div class="tile-icon tile-icon-blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </div>
+      <span class="tile-badge">Biomas por capítulo</span>
+      <h4>El ambiente narra el ciclo</h4>
+      <p>Cap. 1: azul agua. Cap. 2–3: verde frío (tejido). Cap. 4: ocre seco (sequía). Cap. 5: transición oscuro→luz. Cada cambio requiere una paleta de fondo + variante de partícula ambiental. Coste de producción mínimo.</p>
+    </div>
+    <div class="tile">
+      <div class="tile-icon tile-icon-orange">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+      <span class="tile-badge">Mascota</span>
+      <h4>Nigri — el embrión protagonista</h4>
+      <p>Una célula ligeramente más grande que las demás, con núcleo propio. Reacciona a las decisiones del jugador con microanimaciones de shader (latido, contracción, brillo). No habla — pero se siente vivo.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ══ 07 — POSICIONAMIENTO ══ -->
+<section class="section">
+<div class="wrap">
+  <div class="section-id">// 07 — Posicionamiento & Referentes</div>
+  <h2 class="section-title">La <em>síntesis</em> correcta<br>de tres linajes</h2>
+  <p class="section-lead">Nigri no imita un referente — sintetiza deliberadamente tres tradiciones de diseño de videojuegos móviles con historial probado.</p>
+
+  <div class="tile-grid">
+    <div class="tile">
+      <div class="tile-icon tile-icon-acid">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      </div>
+      <span class="tile-badge">Linaje 1 — Profundidad emergente</span>
+      <h4>Opus Magnum · SpaceChem</h4>
+      <p>Juegos donde el jugador programa un sistema de reglas y observa la solución ejecutarse. Nigri hereda la satisfacción de ver tu lógica funcionar, comprimida en sesiones de 90 segundos.</p>
+    </div>
+    <div class="tile">
+      <div class="tile-icon tile-icon-teal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+      </div>
+      <span class="tile-badge">Linaje 2 — Arcade táctil móvil</span>
+      <h4>Threes! · Alto's Odyssey</h4>
+      <p>Juegos de un vistazo comprensible con profundidad de dominio. Nigri hereda la economía de controles táctiles (drag &amp; drop) y la sesión corta compulsiva que hace adicto en mobile.</p>
+    </div>
+    <div class="tile">
+      <div class="tile-icon tile-icon-orange">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 14.1a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 3.5h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.1a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.5 18z"/></svg>
+      </div>
+      <span class="tile-badge">Linaje 3 — Simulación orgánica</span>
+      <h4>Osmos · Flow</h4>
+      <p>Juegos con física de partículas biológica y estética de microscopía. Nigri hereda la sensación de manejar algo vivo y frágil — donde cada célula importa y la pantalla se siente como un organismo real.</p>
+    </div>
+  </div>
+
+  <table class="gene-table" style="margin-top:36px">
+    <thead>
+      <tr>
+        <th>Característica</th>
+        <th>Opus Magnum</th>
+        <th>Threes!</th>
+        <th>Osmos</th>
+        <th>Juegos educ. típicos</th>
+        <th class="acid">Nigri</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Sesión &lt;3 min (móvil)</td><td class="x">✗</td><td class="check">✓</td><td class="check">✓</td><td class="partial">~</td><td class="check acid">✓</td></tr>
+      <tr><td>El jugador programa reglas</td><td class="check">✓</td><td class="x">✗</td><td class="x">✗</td><td class="x">✗</td><td class="check acid">✓</td></tr>
+      <tr><td>Comportamiento emergente real</td><td class="check">✓</td><td class="partial">~</td><td class="check">✓</td><td class="x">✗</td><td class="check acid">✓</td></tr>
+      <tr><td>Contenido científico riguroso</td><td class="x">✗</td><td class="x">✗</td><td class="x">✗</td><td class="partial">~</td><td class="check acid">✓</td></tr>
+      <tr><td>Adictividad arcade probada</td><td class="partial">~</td><td class="check">✓</td><td class="partial">~</td><td class="x">✗</td><td class="check acid">✓</td></tr>
+      <tr><td>Viabilidad equipo pequeño</td><td class="x">✗</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check acid">✓</td></tr>
+      <tr><td>Identidad narrativa chilena</td><td class="x">✗</td><td class="x">✗</td><td class="x">✗</td><td class="partial">~</td><td class="check acid">✓ Exclusivo</td></tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<!-- ══ 07B — DEMO INTERACTIVA ══ -->
+<section class="section">
+<div class="wrap">
+  <div class="section-id">// 07B — Visualización Interactiva</div>
+  <h2 class="section-title">Cinco mecánicas,<br><em>un fenómeno emergente</em></h2>
+  <p class="section-lead">La siguiente simulación muestra un estado real del Capítulo 4 ("La Gran Sequía"), nivel 7. Con cinco mecánicas operando simultáneamente, el comportamiento del sistema es cualitativamente más rico que cualquiera de sus partes.</p>
+
+  <div class="level-sim">
+    <div class="lsim-header">
+      <span class="lsim-tag">CAP 4 · NIV 7</span>
+      <span class="lsim-title">La Gran Sequía — Proliferación Selectiva</span>
+      <span class="lsim-live"><span class="lsim-dot"></span>SIMULACIÓN EN VIVO</span>
+    </div>
+    <canvas id="nigriSim" width="700" height="430"></canvas>
+    <div class="lsim-hint">↑ Simulación en tiempo real — las partículas responden a las cinco fichas de señal activas simultáneamente</div>
+    <div class="lsim-footer">
+      <span class="lsim-foot-label">Fichas en mano</span>
+      <div class="lsim-hand">
+        <div class="lsim-card" style="border-color:rgba(255,210,0,0.25)">
+          <div class="lsim-card-dot" style="background:rgba(255,210,0,0.08);border-color:rgba(255,210,0,0.3)">
+            <svg viewBox="0 0 14 14" fill="none" stroke="#ffd200" stroke-width="1.5" width="10" height="10"><circle cx="7" cy="7" r="3"/><path d="M7 1v2M7 11v2M1 7h2M11 7h2"/></svg>
+          </div>
+          <span style="color:rgba(255,210,0,0.8)">INDUCTORA</span>
+        </div>
+        <div class="lsim-card lsim-card-empty"><span>— vacía —</span></div>
+        <div class="lsim-card lsim-card-empty"><span>— vacía —</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:52px;margin-bottom:6px">Comportamientos emergentes activos</h3>
+  <p style="margin-bottom:0">Cada combinación de fichas genera un comportamiento que ninguna sola puede producir. Esto es lo que el jugador aprende a <em>ver</em>, anticipar y explotar para obtener 3 estrellas.</p>
+
+  <div class="combo-grid">
+    <div class="combo-card">
+      <div class="combo-header">
+        <span class="combo-tag" style="color:#3a9eff;border-color:rgba(58,158,255,0.3)">ATRACCIÓN</span>
+        <span class="combo-plus">+</span>
+        <span class="combo-tag" style="color:rgba(230,239,245,0.3);border-color:rgba(255,255,255,0.1)">BARRERA</span>
+      </div>
+      <div class="combo-result">Flujo dirigido bloqueado</div>
+      <p>Las células migran por quimiotaxis hacia la señal pero no pueden cruzar la lámina basal. Se acumulan en el borde izquierdo formando un gradiente de densidad creciente — como células epiteliales esperando una señal de apertura.</p>
+      <div class="combo-bio">Modelo biológico: adhesión celular + migración dirigida por gradiente</div>
+    </div>
+    <div class="combo-card">
+      <div class="combo-header">
+        <span class="combo-tag" style="color:rgba(230,239,245,0.3);border-color:rgba(255,255,255,0.1)">BARRERA</span>
+        <span class="combo-plus">+</span>
+        <span class="combo-tag" style="color:#00d278;border-color:rgba(0,210,120,0.3)">NUTRIENTE</span>
+      </div>
+      <div class="combo-result">Paso selectivo → Proliferación tisular</div>
+      <p>Solo las células que encuentran la brecha atraviesan la barrera y alcanzan la zona NUTRIENTE, donde se dividen. Esto aísla un compartimento tisular proliferante — exactamente como los compartimentos del embrión en desarrollo.</p>
+      <div class="combo-bio">Modelo biológico: gastrulación · formación de tejidos primarios (ectodermo/endodermo)</div>
+    </div>
+    <div class="combo-card">
+      <div class="combo-header">
+        <span class="combo-tag" style="color:#ff4d4d;border-color:rgba(255,77,77,0.3)">REPULSIÓN</span>
+        <span class="combo-plus">+</span>
+        <span class="combo-tag" style="color:#00d278;border-color:rgba(0,210,120,0.3)">NUTRIENTE</span>
+      </div>
+      <div class="combo-result">Tejido de densidad homeostática</div>
+      <p>NUTRIENTE genera células por mitosis mientras REPULSIÓN evita la sobrepoblación. El resultado es un tejido estable en densidad — compacto pero sin colapso. El jugador ve la inhibición por contacto como mecánica emergente.</p>
+      <div class="combo-bio">Modelo biológico: inhibición de contacto + señalización de proliferación Wnt/Notch</div>
+    </div>
+    <div class="combo-card">
+      <div class="combo-header">
+        <span class="combo-tag" style="color:#00d4c8;border-color:rgba(0,212,200,0.3)">DIAPAUSA</span>
+        <span class="combo-plus">+</span>
+        <span class="combo-tag" style="color:#3a9eff;border-color:rgba(58,158,255,0.3)">ATRACCIÓN</span>
+      </div>
+      <div class="combo-result">Reserva celular en arresto reversible</div>
+      <p>Las células en la zona DIAPAUSA dejan de responder a ATRACCIÓN y quedan en arresto. Son una reserva: cuando el jugador retire la ficha, reinician su migración — igual que el embrión del nigripinnis al salir de la Diapausa II.</p>
+      <div class="combo-bio">Modelo biológico: diapausa celular reversible · Austrolebias nigripinnis Diapausa II</div>
+    </div>
+  </div>
+
+  <div class="emergent-box">
+    <div class="emergent-header">
+      <span class="emergent-tag">Patrón Emergente</span>
+      <h3 style="margin:0;font-size:14px">Lo que el jugador está modelando sin saberlo</h3>
+    </div>
+    <div class="emergent-body">
+      <div class="emergent-cell" style="border-right:1px solid var(--border-soft)">
+        <div class="e-num">Gastrulación</div>
+        <h5>El patrón más fundamental de la biología animal</h5>
+        <p>El comportamiento emergente del nivel — migración guiada → barrera selectiva → proliferación tisular aislada — es una abstracción directa de la gastrulación: el proceso que forma los tres tejidos primarios (ectodermo, mesodermo, endodermo) en todos los animales vertebrados, incluido el <em>Austrolebias nigripinnis</em>.</p>
+      </div>
+      <div class="emergent-cell">
+        <div class="e-num">El giro pedagógico</div>
+        <h5>Descubrimiento por experiencia, no por instrucción</h5>
+        <p>El jugador no lee que "la barrera representa una lámina basal". Lo descubre: intenta cruzar, falla, busca la brecha, pasa, las células proliferan. Solo entonces la Bitácora SELFO le dice que acaba de modelar la invaginación embrionaria. El concepto ya está en el cuerpo — la lectura lo nombra.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<!-- ══ 08 — PME FORMAL ══ -->
+<section class="section">
+<div class="wrap">
+  <div class="section-id">// 08 — Propuesta PME Formal</div>
+  <h2 class="section-title">Proyecto de <em>Proyección<br>al Medio Externo</em></h2>
+  <p class="section-lead">Formulación del proyecto en términos de concurso público ANID — objetivos, resultados esperados, impacto en divulgación científica y justificación de financiamiento.</p>
+
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-val">45</div><div class="kpi-label">Niveles totales</div></div>
+    <div class="kpi"><div class="kpi-val">5</div><div class="kpi-label">Capítulos</div></div>
+    <div class="kpi"><div class="kpi-val">6</div><div class="kpi-label">Fichas de señal</div></div>
+    <div class="kpi"><div class="kpi-val">90s</div><div class="kpi-label">Sesión/nivel</div></div>
+    <div class="kpi"><div class="kpi-val">4</div><div class="kpi-label">Meses prototipo</div></div>
+    <div class="kpi"><div class="kpi-val">$0</div><div class="kpi-label">Costo motor</div></div>
+  </div>
+
+  <div class="pme-box">
+    <div class="pme-header">
+      <span class="pme-badge">Ficha del Proyecto</span>
+      <h3>Datos Generales PME</h3>
+    </div>
+    <div class="pme-body">
+      <div class="pme-row"><div class="pme-key">Título</div><div class="pme-val"><strong>Nigri: Videojuego Móvil de Divulgación Científica sobre Autoorganización Biológica</strong></div></div>
+      <div class="pme-row"><div class="pme-key">Institución</div><div class="pme-val">Núcleo Milenio SELFO · Self-Organization in Biological Systems</div></div>
+      <div class="pme-row"><div class="pme-key">Tipo de Producto</div><div class="pme-val">Videojuego educativo para dispositivos móviles · Android e iOS · Descarga gratuita</div></div>
+      <div class="pme-row"><div class="pme-key">Público Objetivo</div><div class="pme-val">Adolescentes 13–18 años (enseñanza media) · Docentes de ciencias · Público general interesado en biología</div></div>
+      <div class="pme-row"><div class="pme-key">Plataforma Técnica</div><div class="pme-val"><strong>Godot Engine 4</strong> · GDScript · Exportación nativa Android / iOS · Software libre, cero costo de licencia</div></div>
+      <div class="pme-row"><div class="pme-key">Concepto Científico</div><div class="pme-val">Autoorganización celular · Emergencia desde reglas locales · Autómatas celulares biológicos · Ciclo de vida del <em>Argolebias nigripinnis</em> y sus tres puntos de diapausa</div></div>
+      <div class="pme-row"><div class="pme-key">Duración</div><div class="pme-val"><strong>3–4 meses</strong> para prototipo funcional: 1 capítulo jugable (Cap. 1), 9 niveles, 4 fichas de señal implementadas, Bitácora SELFO básica</div></div>
+      <div class="pme-row"><div class="pme-key">Distribución</div><div class="pme-val">Descarga gratuita · Google Play + App Store · Licencia Creative Commons NC para uso educativo · Material pedagógico complementario para docentes</div></div>
+      <div class="pme-row"><div class="pme-key">Resultados Medibles</div><div class="pme-val">
+        <strong>①</strong> Prototipo jugable exportado a Android/iOS<br>
+        <strong>②</strong> Capítulo 1 completo · 9 niveles con balance de dificultad validado<br>
+        <strong>③</strong> Bitácora SELFO · 5 entradas científicas con imágenes reales de laboratorio<br>
+        <strong>④</strong> Piloto en al menos 1 liceo con medición de aprendizaje pre/post
+      </div></div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:48px">Plan de trabajo — 4 meses · Equipo de 2</h3>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-period">Mes 1 — Núcleo jugable</div>
+      <div class="tl-title">Simulación celular + fichas ATRACCIÓN y REPULSIÓN</div>
+      <ul class="tl-list">
+        <li>Implementación del sistema de partículas (<code>RigidBody2D</code> + <code>Area2D</code>) en Godot 4</li>
+        <li>Prototipo de drag &amp; drop de fichas sobre el campo con radio de efecto visual</li>
+        <li>HUD con barras de Orden y Viabilidad · sistema de evaluación de patrón objetivo</li>
+        <li>Primer pase de shader de células (glow + núcleo procedural)</li>
+      </ul>
+      <div class="tl-milestone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg>
+        Hito: simulación celular funcional en dispositivo Android
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-period">Mes 2 — Expansión de mecánicas</div>
+      <div class="tl-title">Fichas NUTRIENTE y DIAPAUSA + 5 niveles jugables</div>
+      <ul class="tl-list">
+        <li>Implementación de NUTRIENTE (división celular) y DIAPAUSA (arresto temporal)</li>
+        <li>LevelLoader desde JSON · 5 niveles del Capítulo 1 con balance inicial</li>
+        <li>Sistema de puntuación por estrellas · pantalla de resumen de nivel</li>
+        <li>Primer pase de arte de fichas (iconografía vectorial SVG)</li>
+      </ul>
+      <div class="tl-milestone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg>
+        Hito: vertical slice jugable de Nigri — Cap. 1, 5 niveles, 4 fichas
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-period">Mes 3 — Pulido y Bitácora</div>
+      <div class="tl-title">9 niveles completos + Bitácora SELFO + piloto</div>
+      <ul class="tl-list">
+        <li>4 niveles adicionales del Cap. 1 · ajuste de dificultad con curva de escalada</li>
+        <li>Tutorial implícito en niveles 1–1, 1–2 (sin texto, sólo señales visuales)</li>
+        <li>Integración de 5 entradas de Bitácora SELFO con imágenes reales del laboratorio</li>
+        <li>Build Android para piloto en contexto educativo real</li>
+      </ul>
+      <div class="tl-milestone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg>
+        Hito: prototipo listo para sesión piloto en liceo
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot dim"></div>
+      <div class="tl-period dim">Mes 4 — QA y ajustes (opcional)</div>
+      <div class="tl-title">Optimización, feedback del piloto e iteración</div>
+      <ul class="tl-list">
+        <li>Ajustes de balance y UX basados en feedback del piloto educativo</li>
+        <li>Optimización de rendimiento en gama media-baja (target: 60 fps en Snapdragon 665)</li>
+        <li>Build iOS básica · preparación de material de difusión para SELFO/ANID</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Equipo propuesto</h3>
+  <div class="team-grid">
+    <div class="team-card">
+      <div class="team-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+      <div class="team-role">Desarrollador Godot</div>
+      <div class="team-ded">50–75% jornada · 4 meses</div>
+      <div class="team-skills">Simulación celular · sistema de fichas · UI móvil · exportación Android/iOS · optimización</div>
+    </div>
+    <div class="team-card">
+      <div class="team-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 9 5 5m0-5-5 5"/></svg></div>
+      <div class="team-role">Game Designer / UX</div>
+      <div class="team-ded">50–75% jornada · 4 meses</div>
+      <div class="team-skills">Diseño de niveles JSON · balance de dificultad · flujo de pantallas · textos in-game · arte de fichas</div>
+    </div>
+    <div class="team-card">
+      <div class="team-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+      <div class="team-role">Asesor Científico SELFO</div>
+      <div class="team-ded">Consultoría por hitos</div>
+      <div class="team-skills">Validación de modelos biológicos · selección de imágenes de laboratorio · redacción Bitácora SELFO</div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:48px">Presupuesto — Prototipo Nigri</h3>
+  <table class="budget-table">
+    <thead>
+      <tr>
+        <th>Ítem</th>
+        <th>Descripción</th>
+        <th>Monto (CLP)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Desarrollador Godot</td>
+        <td>Honorarios parciales · 4 meses · Simulación celular, fichas de señal, UI móvil, exportación Android/iOS</td>
+        <td>$4.000.000</td>
+      </tr>
+      <tr>
+        <td>Game Designer / UX</td>
+        <td>Honorarios parciales · 4 meses · Diseño de niveles, flujo de juego, textos in-game, arte vectorial de fichas</td>
+        <td>$3.000.000</td>
+      </tr>
+      <tr>
+        <td>Asesor Científico SELFO</td>
+        <td>Consultoría por hitos · Validación de modelos, revisión de Bitácora, selección de imágenes de laboratorio</td>
+        <td>$1.000.000</td>
+      </tr>
+      <tr>
+        <td>Sonido y Música</td>
+        <td>Freelance · 2 temas ambientales + SFX (colocación de ficha, eclosión, fallo, pulsos de Nigri)</td>
+        <td>$800.000</td>
+      </tr>
+      <tr>
+        <td>QA y Dispositivos</td>
+        <td>Compra o arriendo de 1–2 teléfonos Android gama media-baja para pruebas de rendimiento y compatibilidad</td>
+        <td>$700.000</td>
+      </tr>
+      <tr>
+        <td>Difusión Inicial</td>
+        <td>Material gráfico de lanzamiento · video corto de gameplay · difusión en redes del Núcleo Milenio SELFO</td>
+        <td>$500.000</td>
+      </tr>
+      <tr class="total">
+        <td colspan="2">Total · Prototipo Nigri · 3–4 meses · Equipo 2 personas</td>
+        <td>$10.000.000</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="mono" style="margin-top:8px;color:var(--muted)">Godot Engine es software libre — costo de licencia del motor: $0 · Cuentas de desarrollador App Store ($99 USD/año) y Google Play ($25 USD único) financiadas por la institución ejecutora</p>
+
+</div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer class="footer">
+  <div class="footer-name">Nigri</div>
+  <div class="footer-meta">
+    Núcleo Milenio SELFO · Self-Organization in Biological Systems<br>
+    Propuesta PME · ANID Chile · Videojuego Móvil de Divulgación Científica<br>
+    Godot Engine 4 · Android · iOS · GDScript
+  </div>
+</footer>
+
+<script>
+// ─── NIGRI LEVEL SIMULATION ───────────────────────────────────────
+(function(){
+  const canvas = document.getElementById('nigriSim');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = 700, H = 430;
+
+  // ── Layout constants ──
+  const BX  = 272;         // barrier X
+  const GY1 = 230, GY2 = 272; // gap Y range
+  const BT  = 105, BB = 405;  // barrier top / bottom
+
+  // ── Signal definitions ──
+  const SIGS = [
+    { id:'att', x:118, y:172, r:108, col:'#3a9eff', rgb:'58,158,255', lbl:'ATRACCIÓN',  sub:'quimiotaxis' },
+    { id:'dia', x:115, y:328, r:70,  col:'#00d4c8', rgb:'0,212,200',  lbl:'DIAPAUSA',   sub:'arresto celular' },
+    { id:'rep', x:415, y:175, r:82,  col:'#ff4d4d', rgb:'255,77,77',  lbl:'REPULSIÓN',  sub:'inhibición contacto' },
+    { id:'nut', x:535, y:310, r:90,  col:'#00d278', rgb:'0,210,120',  lbl:'NUTRIENTE',  sub:'mitosis inducida' },
+  ];
+
+  // ── Cell factory ──
+  function mkCell(x, y, type) {
+    return {
+      x, y,
+      vx:(Math.random()-.5)*.55, vy:(Math.random()-.5)*.55,
+      r: 4.2 + Math.random()*2.4,
+      type: type||'a',   // 'a'=normal 'b'=induced 'f'=frozen
+      alpha: 0,
+      gp: Math.random()*Math.PI*2,  // glow phase
+      nt: 0,             // frames inside nutrient zone
+      px:x, py:y         // previous position (for barrier check)
+    };
+  }
+
+  // ── Initial cell population ──
+  const cells = [];
+  [ [52,88],[85,195],[44,265],[162,96],[75,322],[136,248],
+    [195,145],[65,145],[180,76],[115,388],[55,388],[162,315],
+    [85,46],[142,46],[200,220],[52,200]
+  ].forEach(([x,y])=>cells.push(mkCell(x,y,'a')));
+
+  [ [308,138],[375,280],[445,315],[495,196],[565,285],
+    [615,350],[475,365],[556,162],[425,100],[495,350],
+    [580,230],[640,300]
+  ].forEach(([x,y])=>cells.push(mkCell(x,y,'b')));
+
+  let frame = 0, lastDiv = -999;
+
+  // ── Physics update ──
+  function update() {
+    frame++;
+    const len = cells.length;
+
+    cells.forEach(c => {
+      // Fade in
+      c.alpha = Math.min(1, c.alpha + 0.022);
+      c.gp += 0.036;
+
+      let fx = 0, fy = 0;
+      let frozen = false;
+
+      // — ATTRACTION —
+      const a = SIGS[0];
+      let dx=a.x-c.x, dy=a.y-c.y, d=Math.hypot(dx,dy);
+      if (d>0 && d<a.r) { const f=0.27*(1-d/a.r); fx+=dx/d*f; fy+=dy/d*f; }
+
+      // — DIAPAUSE — dampen velocity when inside zone
+      const di = SIGS[1];
+      dx=c.x-di.x; dy=c.y-di.y; d=Math.hypot(dx,dy);
+      if (d < di.r) { frozen=true; c.vx*=0.80; c.vy*=0.80; }
+
+      // — REPULSION —
+      const r = SIGS[2];
+      dx=c.x-r.x; dy=c.y-r.y; d=Math.hypot(dx,dy);
+      if (d>0 && d<r.r) { const f=0.40*(1-d/r.r); fx+=dx/d*f; fy+=dy/d*f; }
+
+      // — NUTRIENT — induced type + occasional division —
+      const n = SIGS[3];
+      dx=c.x-n.x; dy=c.y-n.y; d=Math.hypot(dx,dy);
+      if (d<n.r) {
+        if (!frozen) c.type='b';
+        c.nt++;
+        if (c.nt%240===0 && len<42 && frame-lastDiv>45) {
+          cells.push(mkCell(
+            c.x+(Math.random()-.5)*18,
+            c.y+(Math.random()-.5)*18,
+            'b'
+          ));
+          lastDiv=frame;
+        }
+      }
+
+      // Update type
+      if (frozen) c.type='f';
+      else if (c.type==='f') c.type='a';
+
+      // — Cell-cell soft repulsion —
+      for(let i=0;i<cells.length;i++){
+        const o=cells[i];
+        if(o===c) continue;
+        dx=c.x-o.x; dy=c.y-o.y; d=Math.hypot(dx,dy);
+        const min=c.r+o.r+1.5;
+        if(d<min&&d>0){const f=(min-d)/min*0.22;fx+=dx/d*f;fy+=dy/d*f;}
+      }
+
+      // — Integrate —
+      c.vx=(c.vx+fx)*0.965;
+      c.vy=(c.vy+fy)*0.965;
+      c.px=c.x; c.py=c.y;
+      c.x+=c.vx; c.y+=c.vy;
+
+      // — Barrier collision —
+      const inGap = c.y>GY1 && c.y<GY2;
+      if (!inGap && c.y>BT && c.y<BB) {
+        if ((c.px<BX&&c.x>=BX)||(c.px>=BX&&c.x<BX)) {
+          c.vx*=-0.52; c.x=c.px;
+        }
+      }
+
+      // — Boundary bounce —
+      if(c.x<c.r){c.x=c.r;c.vx=Math.abs(c.vx)*0.55}
+      if(c.x>W-c.r){c.x=W-c.r;c.vx=-Math.abs(c.vx)*0.55}
+      if(c.y<c.r){c.y=c.r;c.vy=Math.abs(c.vy)*0.55}
+      if(c.y>H-c.r){c.y=H-c.r;c.vy=-Math.abs(c.vy)*0.55}
+    });
+  }
+
+  // ── Drawing helpers ──
+  function dashedArc(x,y,r,color,dash){
+    ctx.save();ctx.setLineDash(dash||[3,5]);
+    ctx.strokeStyle=color;ctx.lineWidth=0.85;
+    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawSigLabel(s){
+    ctx.save();ctx.textAlign='center';
+    ctx.font='700 8px DM Mono,monospace';
+    ctx.fillStyle=s.col; ctx.shadowBlur=8; ctx.shadowColor=s.col;
+    ctx.fillText(s.lbl, s.x, s.y+s.r+13);
+    ctx.shadowBlur=0;
+    ctx.font='6px DM Mono,monospace';
+    ctx.fillStyle='rgba(230,239,245,0.3)';
+    ctx.fillText(s.sub, s.x, s.y+s.r+22);
+    ctx.restore();
+  }
+
+  // ── Main render ──
+  function render(){
+    ctx.clearRect(0,0,W,H);
+
+    // Background
+    ctx.fillStyle='#030507';ctx.fillRect(0,0,W,H);
+
+    // Microscope grid dots
+    ctx.fillStyle='rgba(255,255,255,0.022)';
+    for(let x=20;x<W;x+=20)for(let y=20;y<H;y+=20){
+      ctx.beginPath();ctx.arc(x,y,.75,0,Math.PI*2);ctx.fill();
+    }
+
+    // ── Signal zone halos ──
+    SIGS.forEach(s=>{
+      const g=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,s.r);
+      g.addColorStop(0,  `rgba(${s.rgb},0.11)`);
+      g.addColorStop(0.5,`rgba(${s.rgb},0.045)`);
+      g.addColorStop(1,  `rgba(${s.rgb},0)`);
+      ctx.fillStyle=g;
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
+      dashedArc(s.x,s.y,s.r,`rgba(${s.rgb},0.22)`);
+      // Center pulse dot
+      const pulse=0.55+0.45*Math.sin(frame*0.04+s.r);
+      ctx.shadowBlur=10*pulse;ctx.shadowColor=s.col;
+      ctx.fillStyle=`rgba(${s.rgb},${0.7*pulse})`;
+      ctx.beginPath();ctx.arc(s.x,s.y,4,0,Math.PI*2);ctx.fill();
+      ctx.shadowBlur=0;
+      drawSigLabel(s);
+    });
+
+    // ── Signal tile badges (top of each zone) ──
+    SIGS.forEach(s=>{
+      const tx=s.x-30, ty=s.y-s.r-34, tw=60, th=24;
+      ctx.fillStyle='rgba(6,8,10,0.85)';
+      ctx.fillRect(tx,ty,tw,th);
+      ctx.strokeStyle=`rgba(${s.rgb},0.35)`;ctx.lineWidth=1;
+      ctx.strokeRect(tx,ty,tw,th);
+      // top accent
+      ctx.fillStyle=s.col;ctx.fillRect(tx,ty,tw,2);
+      ctx.font='700 7.5px DM Mono,monospace';ctx.textAlign='center';
+      ctx.fillStyle='rgba(230,239,245,0.9)';
+      ctx.fillText(s.lbl,tx+tw/2,ty+15);
+    });
+
+    // ── Barrier ──
+    ctx.save();
+    ctx.setLineDash([5,4]);ctx.strokeStyle='rgba(255,255,255,0.22)';ctx.lineWidth=1.8;
+    ctx.beginPath();ctx.moveTo(BX,BT);ctx.lineTo(BX,GY1);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(BX,GY2);ctx.lineTo(BX,BB);ctx.stroke();
+    ctx.restore();
+
+    // Gap brackets
+    ctx.strokeStyle='rgba(200,255,0,0.55)';ctx.lineWidth=1;
+    [[GY1,-1],[GY2,1]].forEach(([y,d])=>{
+      ctx.beginPath();
+      ctx.moveTo(BX-8,y);ctx.lineTo(BX+8,y);
+      ctx.stroke();
+    });
+
+    // Gap label
+    ctx.font='700 7px DM Mono,monospace';ctx.textAlign='center';
+    ctx.fillStyle='rgba(200,255,0,0.55)';
+    ctx.fillText('BRECHA'  , BX,(GY1+GY2)/2+2.5);
+
+    // Barrier label (rotated)
+    ctx.save();ctx.translate(BX-16,(BT+BB)/2);ctx.rotate(-Math.PI/2);
+    ctx.font='700 7.5px DM Mono,monospace';ctx.textAlign='center';
+    ctx.fillStyle='rgba(255,255,255,0.2)';
+    ctx.fillText('BARRERA · Lámina Basal',0,0);
+    ctx.restore();
+
+    // Badge for barrier
+    const btx=BX-28, bty=BT-34;
+    ctx.fillStyle='rgba(6,8,10,0.85)';ctx.fillRect(btx,bty,56,24);
+    ctx.strokeStyle='rgba(255,255,255,0.18)';ctx.lineWidth=1;ctx.strokeRect(btx,bty,56,24);
+    ctx.fillStyle='rgba(255,255,255,0.55)';ctx.fillRect(btx,bty,56,2);
+    ctx.font='700 7.5px DM Mono,monospace';ctx.textAlign='center';
+    ctx.fillStyle='rgba(230,239,245,0.9)';ctx.fillText('BARRERA',btx+28,bty+15);
+
+    // ── Objective indicator (top-right) ──
+    const ox=636, oy=72, or_=44;
+    ctx.save();ctx.setLineDash([2,4]);
+    ctx.strokeStyle='rgba(200,255,0,0.18)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(ox,oy,or_,0,Math.PI*2);ctx.stroke();
+    // inner ring
+    ctx.beginPath();ctx.arc(ox,oy,or_*.55,0,Math.PI*2);ctx.stroke();
+    ctx.restore();
+    ctx.font='700 7px DM Mono,monospace';ctx.textAlign='center';
+    ctx.fillStyle='rgba(200,255,0,0.3)';
+    ctx.fillText('OBJETIVO',ox,oy-or_-7);
+    // Target dots
+    for(let i=0;i<10;i++){
+      const a=i*Math.PI*2/10, rd=or_*0.68;
+      ctx.fillStyle='rgba(200,255,0,0.18)';
+      ctx.beginPath();ctx.arc(ox+Math.cos(a)*rd,oy+Math.sin(a)*rd,2.5,0,Math.PI*2);ctx.fill();
+    }
+    for(let i=0;i<5;i++){
+      const a=i*Math.PI*2/5+0.3, rd=or_*0.3;
+      ctx.fillStyle='rgba(200,255,0,0.25)';
+      ctx.beginPath();ctx.arc(ox+Math.cos(a)*rd,oy+Math.sin(a)*rd,2,0,Math.PI*2);ctx.fill();
+    }
+    ctx.fillStyle='rgba(200,255,0,0.3)';
+    ctx.beginPath();ctx.arc(ox,oy,3,0,Math.PI*2);ctx.fill();
+
+    // ── HUD — top-left bars ──
+    const hudW=175, hudH=44;
+    ctx.fillStyle='rgba(3,5,7,0.82)';ctx.fillRect(12,12,hudW,hudH);
+    ctx.strokeStyle='rgba(26,42,58,0.9)';ctx.lineWidth=1;ctx.strokeRect(12,12,hudW,hudH);
+    // ORDEN bar
+    ctx.font='7px DM Mono,monospace';ctx.textAlign='left';
+    ctx.fillStyle='rgba(74,98,112,0.85)';ctx.fillText('ORDEN',20,27);
+    ctx.fillStyle='rgba(26,42,58,1)';ctx.fillRect(58,20,112,4);
+    const ord=0.36+0.09*Math.sin(frame*0.016);
+    ctx.fillStyle='#c8ff00';ctx.fillRect(58,20,112*ord,4);
+    ctx.font='700 7px DM Mono,monospace';ctx.fillStyle='rgba(200,255,0,0.7)';
+    ctx.textAlign='right';ctx.fillText(Math.round(ord*100)+'%',187,27);
+    // VIAB bar
+    ctx.textAlign='left';ctx.font='7px DM Mono,monospace';
+    ctx.fillStyle='rgba(74,98,112,0.85)';ctx.fillText('VIAB.',20,43);
+    ctx.fillStyle='rgba(26,42,58,1)';ctx.fillRect(58,36,112,4);
+    const viab=0.61+0.07*Math.sin(frame*0.013+1.5);
+    ctx.fillStyle='#00d4c8';ctx.fillRect(58,36,112*viab,4);
+    ctx.font='700 7px DM Mono,monospace';ctx.fillStyle='rgba(0,212,200,0.7)';
+    ctx.textAlign='right';ctx.fillText(Math.round(viab*100)+'%',187,43);
+
+    // ── HUD — top-right timer ──
+    const seqSecs=Math.max(0,52-Math.floor(frame/60));
+    const seqPct=seqSecs/52;
+    ctx.fillStyle='rgba(3,5,7,0.82)';ctx.fillRect(W-108,12,96,28);
+    ctx.strokeStyle=`rgba(255,123,46,${0.3+0.2*Math.sin(frame*0.05)})`;
+    ctx.lineWidth=1;ctx.strokeRect(W-108,12,96,28);
+    ctx.font='6px DM Mono,monospace';ctx.textAlign='left';ctx.fillStyle='rgba(255,123,46,0.7)';
+    ctx.fillText('☀ SEQUÍA',W-102,24);
+    ctx.font='700 10px DM Mono,monospace';ctx.fillStyle='#ff7b2e';
+    ctx.textAlign='right';ctx.fillText('0:'+String(seqSecs).padStart(2,'0'),W-16,32);
+    // sequía progress bar
+    ctx.fillStyle='rgba(26,42,58,1)';ctx.fillRect(W-107,40,94,3);
+    ctx.fillStyle='#ff7b2e';ctx.fillRect(W-107,40,94*seqPct,3);
+
+    // ── Star display ──
+    ctx.font='12px serif';ctx.textAlign='center';
+    const s1=frame>60?'★':'☆', s2=frame>120?'★':'☆', s3='☆';
+    ctx.fillStyle='rgba(200,255,0,0.8)';ctx.fillText(s1,W/2-16,26);
+    ctx.fillStyle=frame>120?'rgba(200,255,0,0.8)':'rgba(74,98,112,0.5)';ctx.fillText(s2,W/2,26);
+    ctx.fillStyle='rgba(74,98,112,0.4)';ctx.fillText(s3,W/2+16,26);
+
+    // ── Cells ──
+    cells.forEach(c=>{
+      let col,rgb;
+      if     (c.type==='f'){col='#00d4c8';rgb='0,212,200';}
+      else if(c.type==='b'){col='#00d278';rgb='0,210,120';}
+      else                  {col='#c8ff00';rgb='200,255,0';}
+
+      const glow=0.45+0.55*Math.sin(c.gp);
+
+      // Outer halo
+      const gr=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,c.r*2.8);
+      gr.addColorStop(0,`rgba(${rgb},${0.18*glow*c.alpha})`);
+      gr.addColorStop(1,`rgba(${rgb},0)`);
+      ctx.fillStyle=gr;
+      ctx.beginPath();ctx.arc(c.x,c.y,c.r*2.8,0,Math.PI*2);ctx.fill();
+
+      // Cell body
+      ctx.shadowBlur=c.type==='f'?3:7*glow;
+      ctx.shadowColor=col;
+      ctx.globalAlpha=c.alpha*(c.type==='f'?0.45:0.75);
+      ctx.fillStyle=col;
+      ctx.beginPath();ctx.arc(c.x,c.y,c.r,0,Math.PI*2);ctx.fill();
+      ctx.shadowBlur=0;ctx.globalAlpha=1;
+
+      // Nucleus
+      ctx.fillStyle='rgba(0,0,0,0.48)';
+      ctx.beginPath();ctx.arc(c.x,c.y,c.r*.37,0,Math.PI*2);ctx.fill();
+
+      // Frozen crystals indicator
+      if(c.type==='f'){
+        ctx.strokeStyle='rgba(0,212,200,0.3)';ctx.lineWidth=0.6;
+        for(let i=0;i<4;i++){
+          const a=i*Math.PI/2+frame*0.003;
+          ctx.beginPath();
+          ctx.moveTo(c.x,c.y);
+          ctx.lineTo(c.x+Math.cos(a)*c.r*1.5,c.y+Math.sin(a)*c.r*1.5);
+          ctx.stroke();
+        }
+      }
+
+      // Dividing indicator (for 'b' cells with high nt)
+      if(c.type==='b' && c.nt>180 && c.nt%240<40){
+        const dp=c.nt%240/40;
+        ctx.strokeStyle=`rgba(0,210,120,${0.5*dp})`;ctx.lineWidth=1;
+        ctx.beginPath();ctx.arc(c.x,c.y,c.r*(1+dp*.6),0,Math.PI*2);ctx.stroke();
+      }
+    });
+
+    // ── Cell counter ──
+    ctx.font='7px DM Mono,monospace';ctx.textAlign='left';
+    ctx.fillStyle='rgba(74,98,112,0.55)';
+    ctx.fillText(`CÉLULAS ACTIVAS: ${cells.length}`,16,H-10);
+
+    // ── Legend bottom-right ──
+    const lx=W-142, ly=H-68;
+    ctx.fillStyle='rgba(3,5,7,0.75)';ctx.fillRect(lx,ly,130,58);
+    ctx.strokeStyle='rgba(26,42,58,0.8)';ctx.lineWidth=1;ctx.strokeRect(lx,ly,130,58);
+    const items=[
+      ['#c8ff00','200,255,0','Célula activa'],
+      ['#00d278','0,210,120','Célula inducida'],
+      ['#00d4c8','0,212,200','Célula en diapausa'],
+    ];
+    ctx.font='7px DM Mono,monospace';ctx.textAlign='left';
+    items.forEach(([col,rgb,lbl],i)=>{
+      const iy=ly+12+i*16;
+      ctx.fillStyle=col;ctx.shadowBlur=4;ctx.shadowColor=col;
+      ctx.beginPath();ctx.arc(lx+10,iy,4,0,Math.PI*2);ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.fillStyle='rgba(230,239,245,0.5)';
+      ctx.fillText(lbl,lx+20,iy+2.5);
+    });
+  }
+
+  // ── Loop ──
+  function loop(){update();render();requestAnimationFrame(loop);}
+  loop();
+})();
+</script>
+<script>
+lucide.createIcons();
+</script>
+</body>
+</html>

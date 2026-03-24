@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Nigri · Cap.4 · La Brecha</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  width:100%;height:100%;
+  background:#020406;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  overflow:hidden;
+  font-family:'DM Mono',monospace;
+  -webkit-font-smoothing:antialiased;
+}
+#wrap{
+  position:relative;
+  width:100%;
+  max-width:920px;
+  display:flex;flex-direction:column;align-items:center;
+}
+#c{
+  display:block;
+  cursor:crosshair;
+  width:100%;
+  height:auto;
+  image-rendering:crisp-edges;
+}
+#overlay-ui{
+  position:absolute;
+  top:0;left:0;right:0;bottom:0;
+  pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="c"></canvas>
+  <div id="overlay-ui"></div>
+</div>
+
+<script>
+'use strict';
+// ─────────────────────────────────────────────────────────────────────────────
+// NIGRI — Prototype v1.0
+// Cap.4 · Nivel 3 · La Brecha · Proliferación Selectiva
+// ─────────────────────────────────────────────────────────────────────────────
+
+const TAU = Math.PI * 2;
+
+// ── VIRTUAL DIMENSIONS ────────────────────────────────────────────────────────
+const VW = 920, VH = 580;
+const FIELD_H = 462;   // field takes top portion
+const HAND_Y  = 462;   // hand starts here
+const HAND_H  = 118;
+const HUD_H   = 48;    // top HUD bar height
+
+// ── SIGNAL DEFINITIONS ────────────────────────────────────────────────────────
+const SDEF = {
+  attraction:{
+    name:'ATRACCIÓN', bio:'Quimiotaxis dirigida',
+    col:'#3a9eff', rgb:[58,158,255], darkBg:'rgba(58,158,255,0.06)',
+    r:118, force:0.26, kind:'pull',
+    icon:(ctx,x,y,c)=>drawIconArrowsIn(ctx,x,y,c),
+  },
+  repulsion:{
+    name:'REPULSIÓN', bio:'Inhibición por contacto',
+    col:'#ff4d6a', rgb:[255,77,106], darkBg:'rgba(255,77,106,0.06)',
+    r:88, force:0.34, kind:'push',
+    icon:(ctx,x,y,c)=>drawIconArrowsOut(ctx,x,y,c),
+  },
+  nutrient:{
+    name:'NUTRIENTE', bio:'Mitosis inducida por señal',
+    col:'#00d278', rgb:[0,210,120], darkBg:'rgba(0,210,120,0.06)',
+    r:100, force:0, kind:'grow',
+    icon:(ctx,x,y,c)=>drawIconPlus(ctx,x,y,c),
+  },
+  diapause:{
+    name:'DIAPAUSA', bio:'Arresto celular reversible',
+    col:'#00d4c8', rgb:[0,212,200], darkBg:'rgba(0,212,200,0.06)',
+    r:85, force:0, kind:'freeze',
+    icon:(ctx,x,y,c)=>drawIconPause(ctx,x,y,c),
+  },
+};
+
+// ── CELL VISUAL CONFIGS ───────────────────────────────────────────────────────
+const CDEF = {
+  normal: { col:'#c8ff00', rgb:[200,255,0] },
+  induced:{ col:'#00d278', rgb:[0,210,120] },
+  frozen: { col:'#00d4c8', rgb:[0,212,200] },
+  winning:{ col:'#ffffff', rgb:[255,255,255] },
+};
+
+// ── LEVEL CONFIG ──────────────────────────────────────────────────────────────
+const LVL = {
+  chapter:4, num:3,
+  name:'La Brecha',
+  sub:'Proliferación Selectiva',
+  timeLimit:90,
+  // Barrier
+  bx:432, bTop:HUD_H+4, bBot:FIELD_H-8,
+  gTop:210, gBot:284,
+  // Target zone
+  tz:{ x:758, y:258, r:104 },
+  targetN:10,
+  startN:18,
+  hand:[
+    {type:'attraction', count:2},
+    {type:'repulsion',  count:1},
+    {type:'diapause',   count:1},
+    {type:'nutrient',   count:1},
+  ],
+  // star thresholds (net tiles placed at win)
+  stars:[2,3,999],
+};
+
+// ── START POSITIONS ───────────────────────────────────────────────────────────
+const START_POS = [
+  [62,98],[118,72],[84,185],[152,158],[208,122],
+  [58,278],[118,308],[182,262],[245,295],[305,248],
+  [358,188],[95,392],[168,378],[228,360],[285,330],
+  [338,358],[258,108],[318,78]
+];
+
+// ── GAME STATE ────────────────────────────────────────────────────────────────
+const G = {
+  canvas:null, ctx:null,
+  dpr:1, scale:1,        // displayScale for mouse mapping
+  cells:[], tiles:[],
+  hand:[], // {type, count, orig, x, y, w, h}
+  drag:{ on:false, type:null, hi:-1, cx:0, cy:0 },
+  hover:{ ti:-1 },       // hovering placed tile index
+  tilesNet:0,            // net tiles currently on field
+  tilesPlaced:0,         // total ever placed (for stars)
+  timeLeft:LVL.timeLimit,
+  lastTick:0,
+  cellsInZone:0,
+  phase:'intro',         // 'intro'|'playing'|'win'|'lose'
+  introT:0,
+  endT:0,
+  stars:0,
+  frame:0,
+  lastDiv:0,
+  ripples:[],
+  particles:[],          // win explosion particles
+  firstTile:false,       // hint flag
+  hintAlpha:1,
+};
+
+// ── SETUP ─────────────────────────────────────────────────────────────────────
+function setup(){
+  G.canvas = document.getElementById('c');
+  G.ctx    = G.canvas.getContext('2d');
+  G.dpr    = Math.min(window.devicePixelRatio||1, 2);
+
+  G.canvas.width  = VW * G.dpr;
+  G.canvas.height = VH * G.dpr;
+  G.ctx.scale(G.dpr, G.dpr);
+
+  resize();
+  window.addEventListener('resize', resize);
+
+  G.canvas.addEventListener('mousedown',   e=>onDown(virtXY(e.clientX,e.clientY),e.button));
+  G.canvas.addEventListener('mousemove',   e=>onMove(virtXY(e.clientX,e.clientY)));
+  G.canvas.addEventListener('mouseup',     e=>onUp(virtXY(e.clientX,e.clientY)));
+  G.canvas.addEventListener('contextmenu', e=>{e.preventDefault();onRight(virtXY(e.clientX,e.clientY));});
+  G.canvas.addEventListener('touchstart',  e=>{e.preventDefault();const t=e.touches[0];onDown(virtXY(t.clientX,t.clientY),0);},{passive:false});
+  G.canvas.addEventListener('touchmove',   e=>{e.preventDefault();const t=e.touches[0];onMove(virtXY(t.clientX,t.clientY));},{passive:false});
+  G.canvas.addEventListener('touchend',    e=>{e.preventDefault();const t=e.changedTouches[0];onUp(virtXY(t.clientX,t.clientY));},{passive:false});
+  window.addEventListener('keydown', e=>{ if(e.key==='r'||e.key==='R') restart(); });
+
+  initLevel();
+  G.lastTick = performance.now();
+  requestAnimationFrame(loop);
+}
+
+function resize(){
+  const avail = Math.min(window.innerWidth-4, VW);
+  G.scale = avail / VW;
+  G.canvas.style.width  = (VW*G.scale)+'px';
+  G.canvas.style.height = (VH*G.scale)+'px';
+}
+
+function virtXY(cx, cy){
+  const r = G.canvas.getBoundingClientRect();
+  return { x:(cx-r.left)/G.scale, y:(cy-r.top)/G.scale };
+}
+
+function initLevel(){
+  G.cells=[];
+  G.tiles=[];
+  G.tilesNet=0;
+  G.tilesNet=0;
+  G.tilesPlaced=0;
+  G.timeLeft=LVL.timeLimit;
+  G.cellsInZone=0;
+  G.ripples=[];
+  G.particles=[];
+  G.firstTile=false;
+  G.hintAlpha=1;
+  G.lastDiv=0;
+  G.frame=0;
+  G.phase='intro';
+  G.introT=0;
+  G.endT=0;
+  G.stars=0;
+  G.drag={on:false,type:null,hi:-1,cx:0,cy:0};
+  G.hover={ti:-1};
+
+  for(let i=0;i<LVL.startN;i++){
+    G.cells.push(mkCell(
+      START_POS[i][0]+(Math.random()-.5)*20,
+      START_POS[i][1]+(Math.random()-.5)*20
+    ));
+  }
+  buildHand();
+}
+
+function buildHand(){
+  G.hand = LVL.hand.map(h=>({type:h.type,count:h.count,orig:h.count}));
+  const cw=102, ch=88, gap=12;
+  const total = G.hand.length*cw+(G.hand.length-1)*gap;
+  const sx = (VW-total)/2;
+  G.hand.forEach((c,i)=>{
+    c.x=sx+i*(cw+gap); c.y=HAND_Y+14; c.w=cw; c.h=ch;
+  });
+}
+
+// ── CELL FACTORY ──────────────────────────────────────────────────────────────
+function mkCell(x,y){
+  return {
+    x, y, px:x, py:y,
+    vx:(Math.random()-.5)*.7,
+    vy:(Math.random()-.5)*.7,
+    r: 4.8+Math.random()*2.5,
+    type:'normal',
+    alpha:0,
+    ph:Math.random()*TAU,  // glow phase
+    nt:0,                  // frames in nutrient zone
+    alive:true,
+    inZone:false,
+  };
+}
+
+// ── PHYSICS ───────────────────────────────────────────────────────────────────
+function updateCells(){
+  const cells=G.cells, tiles=G.tiles, N=cells.length;
+  const tz=LVL.tz;
+  let inZone=0;
+
+  cells.forEach(c=>{
+    if(!c.alive) return;
+    c.ph += 0.038;
+    c.alpha = Math.min(1, c.alpha+0.025);
+    c.px=c.x; c.py=c.y;
+
+    let fx=0, fy=0, frozen=false, inNut=false;
+
+    tiles.forEach(t=>{
+      const sd=SDEF[t.type];
+      const dx=t.x-c.x, dy=t.y-c.y;
+      const d=Math.hypot(dx,dy);
+      if(d<=0||d>sd.r) return;
+      const norm=(1-d/sd.r);
+
+      if(sd.kind==='pull'){
+        fx += (dx/d)*sd.force*norm*norm;
+        fy += (dy/d)*sd.force*norm*norm;
+      } else if(sd.kind==='push'){
+        fx -= (dx/d)*sd.force*norm;
+        fy -= (dy/d)*sd.force*norm;
+      } else if(sd.kind==='freeze'){
+        frozen=true;
+      } else if(sd.kind==='grow'){
+        inNut=true;
+      }
+    });
+
+    // Cell-cell soft separation
+    for(let j=0;j<N;j++){
+      const o=cells[j];
+      if(o===c||!o.alive) continue;
+      const dx=c.x-o.x, dy=c.y-o.y;
+      const d=Math.hypot(dx,dy);
+      const minD=c.r+o.r+2.5;
+      if(d<minD&&d>0){
+        const f=(minD-d)/minD*0.22;
+        fx+=dx/d*f; fy+=dy/d*f;
+      }
+    }
+
+    // Type update
+    if(frozen){
+      c.type='frozen';
+      c.vx*=0.80; c.vy*=0.80;
+    } else {
+      if(c.type==='frozen') c.type= inNut?'induced':'normal';
+      if(inNut){ c.type='induced'; c.nt++; }
+      else{ if(c.nt>0) c.nt=Math.max(0,c.nt-1); }
+
+      // Division (nutrient zone)
+      if(inNut && c.nt%320===280 && cells.length<34 && G.frame-G.lastDiv>80){
+        const nc=mkCell(c.x+(Math.random()-.5)*18, c.y+(Math.random()-.5)*18);
+        nc.type='induced'; nc.alpha=0;
+        cells.push(nc);
+        G.lastDiv=G.frame;
+        addRipple(nc.x,nc.y,'rgba(0,210,120,0.7)',40);
+      }
+
+      // Integrate
+      c.vx=(c.vx+fx)*0.966;
+      c.vy=(c.vy+fy)*0.966;
+    }
+
+    c.x+=c.vx; c.y+=c.vy;
+
+    // Barrier collision
+    barrierCollide(c);
+
+    // Field boundaries
+    const pad=c.r, minY=HUD_H+pad, maxY=FIELD_H-pad-2;
+    if(c.x<pad){c.x=pad;c.vx=Math.abs(c.vx)*0.45;}
+    if(c.x>VW-pad){c.x=VW-pad;c.vx=-Math.abs(c.vx)*0.45;}
+    if(c.y<minY){c.y=minY;c.vy=Math.abs(c.vy)*0.45;}
+    if(c.y>maxY){c.y=maxY;c.vy=-Math.abs(c.vy)*0.45;}
+
+    // Zone check
+    const dz=Math.hypot(c.x-tz.x,c.y-tz.y);
+    c.inZone=(dz<tz.r);
+    if(c.inZone) inZone++;
+  });
+
+  G.cellsInZone=inZone;
+}
+
+function barrierCollide(c){
+  const bx=LVL.bx, gT=LVL.gTop, gB=LVL.gBot;
+  const inGap=(c.y>gT+c.r*0.5 && c.y<gB-c.r*0.5);
+  if(inGap) return; // can pass freely through gap
+
+  // Detect crossing attempt
+  if((c.px < bx-c.r && c.x >= bx-c.r)||
+     (c.px > bx+c.r && c.x <= bx+c.r)){
+    c.x=c.px;
+    c.vx=-c.vx*0.28;
+  }
+  // Push back if somehow overlapping
+  if(Math.abs(c.x-bx)<c.r){
+    c.x = c.px<bx ? bx-c.r-0.5 : bx+c.r+0.5;
+    c.vx=-c.vx*0.28;
+  }
+}
+
+// ── UPDATE ────────────────────────────────────────────────────────────────────
+function update(ts){
+  const dt=Math.min((ts-G.lastTick)/1000, 0.05);
+  G.lastTick=ts;
+  G.frame++;
+
+  if(G.phase==='intro'){
+    G.introT+=dt;
+    updateRipples(dt);
+    if(G.introT>3) G.phase='playing';
+    return;
+  }
+
+  if(G.phase==='playing'){
+    G.timeLeft=Math.max(0,G.timeLeft-dt);
+
+    if(!G.firstTile) G.hintAlpha=Math.min(1,G.hintAlpha);
+    else G.hintAlpha=Math.max(0,G.hintAlpha-dt*0.8);
+
+    updateCells();
+    updateRipples(dt);
+    updateParticles(dt);
+
+    if(G.cellsInZone>=LVL.targetN){
+      triggerWin();
+    } else if(G.timeLeft<=0){
+      triggerLose();
+    }
+    return;
+  }
+
+  if(G.phase==='win'||G.phase==='lose'){
+    G.endT+=dt;
+    updateParticles(dt);
+    updateRipples(dt);
+  }
+}
+
+function triggerWin(){
+  G.phase='win';
+  G.endT=0;
+  if(G.tilesNet<=LVL.stars[0])      G.stars=3;
+  else if(G.tilesNet<=LVL.stars[1]) G.stars=2;
+  else                               G.stars=1;
+  // Spawn win particles from target zone
+  const tz=LVL.tz;
+  for(let i=0;i<60;i++){
+    const a=Math.random()*TAU, sp=2+Math.random()*5;
+    G.particles.push({
+      x:tz.x+(Math.random()-.5)*tz.r*0.5,
+      y:tz.y+(Math.random()-.5)*tz.r*0.5,
+      vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-1.5,
+      life:1, decay:0.012+Math.random()*0.01,
+      r:2+Math.random()*4,
+      col:[200,255,0],
+    });
+  }
+}
+
+function triggerLose(){
+  G.phase='lose';
+  G.endT=0;
+}
+
+// ── RIPPLES & PARTICLES ───────────────────────────────────────────────────────
+function addRipple(x,y,col,maxR){
+  G.ripples.push({x,y,col,t:0,maxR:maxR||90,life:0.9});
+}
+function updateRipples(dt){
+  G.ripples=G.ripples.filter(r=>{r.t+=dt;return r.t<r.life;});
+}
+function updateParticles(dt){
+  G.particles=G.particles.filter(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.08;
+    p.vx*=0.97; p.vy*=0.97;
+    p.life-=p.decay;
+    return p.life>0;
+  });
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render(){
+  const ctx=G.ctx;
+  ctx.clearRect(0,0,VW,VH);
+
+  // Background
+  ctx.fillStyle='#030508';
+  ctx.fillRect(0,0,VW,VH);
+
+  drawGrid(ctx);
+
+  if(G.phase==='intro'){ drawIntro(ctx); return; }
+
+  drawTargetZone(ctx);
+  G.tiles.forEach((t,i)=>drawTile(ctx,t,i));
+  G.ripples.forEach(r=>drawRipple(ctx,r));
+  drawBarrier(ctx);
+  G.cells.forEach(c=>{ if(c.alive) drawCell(ctx,c); });
+  drawParticles(ctx);
+  drawHUD(ctx);
+  drawHand(ctx);
+  if(G.drag.on) drawGhost(ctx);
+  if(G.phase==='win')  drawWin(ctx);
+  if(G.phase==='lose') drawLose(ctx);
+}
+
+function drawGrid(ctx){
+  ctx.fillStyle='rgba(255,255,255,0.018)';
+  for(let x=24;x<VW;x+=24) for(let y=24;y<VH;y+=24){
+    ctx.beginPath();ctx.arc(x,y,.85,0,TAU);ctx.fill();
+  }
+}
+
+function drawIntro(ctx){
+  const t=G.introT;
+  const fadeIn=Math.min(1,t*1.2);
+  const fadeOut=t>2.2?Math.max(0,1-(t-2.2)/0.7):1;
+  const a=fadeIn*fadeOut;
+
+  // Ambient cell field (background)
+  G.cells.forEach(c=>{
+    const cd=CDEF[c.type];
+    const [r,g,b]=cd.rgb;
+    c.ph+=0.02;
+    ctx.globalAlpha=0.06*a;
+    ctx.fillStyle=`rgb(${r},${g},${b})`;
+    ctx.beginPath();ctx.arc(c.x,c.y,c.r*1.5,0,TAU);ctx.fill();
+  });
+  ctx.globalAlpha=1;
+
+  // Dark overlay
+  ctx.fillStyle=`rgba(3,5,8,${0.6*a})`;
+  ctx.fillRect(0,0,VW,VH);
+
+  ctx.globalAlpha=a;
+  ctx.textAlign='center';
+
+  // Chapter label
+  ctx.font=`500 10px 'DM Mono',monospace`;
+  ctx.fillStyle='rgba(200,255,0,0.5)';
+  ctx.fillText(`CAPÍTULO ${LVL.chapter} · NIVEL ${LVL.num}`,VW/2,VH/2-90);
+
+  // Title
+  ctx.font=`800 58px 'Syne',sans-serif`;
+  ctx.fillStyle='#c8ff00';
+  ctx.shadowBlur=40;ctx.shadowColor='rgba(200,255,0,0.4)';
+  ctx.fillText(LVL.name.toUpperCase(),VW/2,VH/2-32);
+  ctx.shadowBlur=0;
+
+  // Subtitle
+  ctx.font=`400 15px 'DM Mono',monospace`;
+  ctx.fillStyle='rgba(230,240,245,0.45)';
+  ctx.fillText(LVL.sub,VW/2,VH/2+8);
+
+  // Instructions
+  const lines=[
+    '// Lleva 10 células al OBJETIVO (zona derecha)',
+    '// Arrastra fichas de señal al campo · Clic derecho para retirar',
+    '// Menos fichas usadas = más estrellas',
+  ];
+  ctx.font=`400 11px 'DM Mono',monospace`;
+  lines.forEach((l,i)=>{
+    ctx.fillStyle=`rgba(200,255,0,${0.22+i*0.04})`;
+    ctx.fillText(l,VW/2,VH/2+44+i*18);
+  });
+
+  ctx.font=`400 10px 'DM Mono',monospace`;
+  ctx.fillStyle=`rgba(230,240,245,${0.3*Math.abs(Math.sin(t*2.5))})`;
+  ctx.fillText('· toca para comenzar ·',VW/2,VH/2+112);
+
+  ctx.globalAlpha=1;
+}
+
+function drawTargetZone(ctx){
+  const tz=LVL.tz;
+  const prog=Math.min(1,G.cellsInZone/LVL.targetN);
+  const pulse=0.5+0.5*Math.sin(G.frame*0.04);
+
+  // Outer radial glow
+  const gr=ctx.createRadialGradient(tz.x,tz.y,0,tz.x,tz.y,tz.r);
+  gr.addColorStop(0,`rgba(200,255,0,${0.07+0.08*prog})`);
+  gr.addColorStop(0.5,`rgba(200,255,0,0.02)`);
+  gr.addColorStop(1,`rgba(200,255,0,0)`);
+  ctx.fillStyle=gr;
+  ctx.beginPath();ctx.arc(tz.x,tz.y,tz.r,0,TAU);ctx.fill();
+
+  // Dashed boundary
+  ctx.save();
+  ctx.setLineDash([4,6]);
+  ctx.strokeStyle=`rgba(200,255,0,${0.15+0.1*prog+0.06*pulse})`;
+  ctx.lineWidth=1;
+  ctx.beginPath();ctx.arc(tz.x,tz.y,tz.r,0,TAU);ctx.stroke();
+  ctx.restore();
+
+  // Progress arc
+  if(prog>0){
+    ctx.strokeStyle=`rgba(200,255,0,${0.55+0.25*prog})`;
+    ctx.lineWidth=2.5;
+    ctx.shadowBlur=8;ctx.shadowColor='rgba(200,255,0,0.5)';
+    ctx.beginPath();
+    ctx.arc(tz.x,tz.y,tz.r,-Math.PI/2,-Math.PI/2+TAU*prog);
+    ctx.stroke();
+    ctx.shadowBlur=0;
+  }
+
+  // Label
+  ctx.textAlign='center';
+  ctx.font=`500 9px 'DM Mono',monospace`;
+  ctx.fillStyle='rgba(200,255,0,0.38)';
+  ctx.fillText('OBJETIVO',tz.x,tz.y-tz.r-12);
+
+  // Counter
+  ctx.font=`700 28px 'DM Mono',monospace`;
+  ctx.fillStyle=`rgba(200,255,0,${0.25+0.6*prog})`;
+  if(prog>0.2){ctx.shadowBlur=14;ctx.shadowColor='rgba(200,255,0,0.5)';}
+  ctx.fillText(`${G.cellsInZone}/${LVL.targetN}`,tz.x,tz.y+10);
+  ctx.shadowBlur=0;
+  ctx.font=`400 9px 'DM Mono',monospace`;
+  ctx.fillStyle=`rgba(200,255,0,${0.22+0.3*prog})`;
+  ctx.fillText('células',tz.x,tz.y+26);
+}
+
+function drawTile(ctx,t,idx){
+  const sd=SDEF[t.type];
+  const [r,g,b]=sd.rgb;
+  const isHov=(G.hover.ti===idx);
+  const pulse=0.5+0.5*Math.sin(G.frame*0.05+t.ph);
+
+  // Zone halo
+  const gr=ctx.createRadialGradient(t.x,t.y,0,t.x,t.y,sd.r);
+  gr.addColorStop(0,`rgba(${r},${g},${b},0.11)`);
+  gr.addColorStop(0.6,`rgba(${r},${g},${b},0.035)`);
+  gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
+  ctx.fillStyle=gr;
+  ctx.beginPath();ctx.arc(t.x,t.y,sd.r,0,TAU);ctx.fill();
+
+  // Outer dashed ring
+  ctx.save();ctx.setLineDash([3,6]);
+  ctx.strokeStyle=`rgba(${r},${g},${b},${isHov?0.5:0.22})`;
+  ctx.lineWidth=1;ctx.beginPath();ctx.arc(t.x,t.y,sd.r,0,TAU);ctx.stroke();
+  ctx.restore();
+
+  // Inner pulse ring
+  ctx.save();ctx.setLineDash([2,5]);
+  ctx.strokeStyle=`rgba(${r},${g},${b},${0.09*pulse})`;
+  ctx.lineWidth=1;ctx.beginPath();ctx.arc(t.x,t.y,sd.r*(0.55+0.45*pulse),0,TAU);ctx.stroke();
+  ctx.restore();
+
+  // Center glow dot
+  ctx.shadowBlur=isHov?16:10;ctx.shadowColor=sd.col;
+  ctx.fillStyle=sd.col;
+  ctx.beginPath();ctx.arc(t.x,t.y,4.5,0,TAU);ctx.fill();
+  ctx.shadowBlur=0;
+
+  // Badge
+  const bw=84, bh=26, bx=t.x-bw/2, by=t.y-sd.r-46;
+  ctx.fillStyle='rgba(3,5,8,0.90)';
+  rrect(ctx,bx,by,bw,bh,3);ctx.fill();
+  ctx.strokeStyle=`rgba(${r},${g},${b},${isHov?0.55:0.3})`;
+  ctx.lineWidth=1;rrect(ctx,bx,by,bw,bh,3);ctx.stroke();
+  ctx.fillStyle=sd.col;rrect(ctx,bx,by,bw,2.5,3);ctx.fill();
+
+  ctx.textAlign='center';
+  ctx.font=`700 8px 'DM Mono',monospace`;
+  ctx.fillStyle='rgba(230,240,245,0.92)';ctx.fillText(sd.name,t.x,by+15);
+  ctx.font=`300 7px 'DM Mono',monospace`;
+  ctx.fillStyle=`rgba(${r},${g},${b},0.55)`;ctx.fillText(sd.bio,t.x,by+24);
+
+  // Remove ×
+  if(isHov){
+    ctx.fillStyle='rgba(255,55,55,0.85)';
+    ctx.shadowBlur=6;ctx.shadowColor='rgba(255,0,0,0.5)';
+    ctx.beginPath();ctx.arc(bx+bw+6,by+bh/2,10,0,TAU);ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.font=`700 11px monospace`;ctx.fillStyle='#fff';
+    ctx.fillText('×',bx+bw+6,by+bh/2+4);
+  }
+}
+
+function drawRipple(ctx,r){
+  const p=r.t/r.life, rad=r.maxR*p, a=(1-p)*0.45;
+  ctx.strokeStyle=r.col.replace(/[\d.]+\)$/,`${a})`);
+  ctx.lineWidth=2*(1-p*0.7);
+  ctx.beginPath();ctx.arc(r.x,r.y,rad,0,TAU);ctx.stroke();
+}
+
+function drawBarrier(ctx){
+  const {bx,bTop,bBot,gTop,gBot}=LVL;
+  ctx.save();
+
+  // Top wall segment
+  ctx.setLineDash([5,4]);ctx.strokeStyle='rgba(255,255,255,0.28)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(bx,bTop);ctx.lineTo(bx,gTop);ctx.stroke();
+  // Bottom wall segment
+  ctx.beginPath();ctx.moveTo(bx,gBot);ctx.lineTo(bx,bBot);ctx.stroke();
+
+  // Gap glow
+  ctx.setLineDash([]);
+  const gg=ctx.createLinearGradient(bx-14,0,bx+14,0);
+  gg.addColorStop(0,'rgba(200,255,0,0)');
+  gg.addColorStop(0.5,'rgba(200,255,0,0.07)');
+  gg.addColorStop(1,'rgba(200,255,0,0)');
+  ctx.fillStyle=gg;ctx.fillRect(bx-14,gTop,28,gBot-gTop);
+
+  // Gap bracket lines
+  ctx.strokeStyle='rgba(200,255,0,0.65)';ctx.lineWidth=1.5;
+  [gTop,gBot].forEach(y=>{
+    ctx.beginPath();ctx.moveTo(bx-10,y);ctx.lineTo(bx+10,y);ctx.stroke();
+  });
+
+  // BRECHA label
+  ctx.textAlign='center';ctx.font=`700 9px 'DM Mono',monospace`;
+  ctx.fillStyle='rgba(200,255,0,0.55)';
+  ctx.fillText('BRECHA'+(String.fromCharCode(10))+'↕',bx,(gTop+gBot)/2+4);
+
+  // Side labels (rotated)
+  ctx.save();ctx.translate(bx-17,(bTop+gTop)/2);ctx.rotate(-Math.PI/2);
+  ctx.font=`300 7.5px 'DM Mono',monospace`;ctx.fillStyle='rgba(255,255,255,0.2)';
+  ctx.fillText('BARRERA · Lámina Basal',0,0);ctx.restore();
+
+  ctx.save();ctx.translate(bx-17,(gBot+bBot)/2);ctx.rotate(-Math.PI/2);
+  ctx.font=`300 7.5px 'DM Mono',monospace`;ctx.fillStyle='rgba(255,255,255,0.2)';
+  ctx.fillText('BARRERA · Lámina Basal',0,0);ctx.restore();
+
+  ctx.restore();
+}
+
+function drawCell(ctx,c){
+  const def=G.phase==='win'&&c.inZone ? CDEF.winning : CDEF[c.type];
+  const [r,g,b]=def.rgb;
+  const pulse=0.9+0.1*Math.sin(c.ph);
+  const cr=c.r*pulse;
+
+  ctx.globalAlpha=c.alpha*(G.phase==='lose'?0.35:1);
+
+  // Outer halo
+  const gr=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,cr*3.5);
+  gr.addColorStop(0,`rgba(${r},${g},${b},0.15)`);
+  gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
+  ctx.fillStyle=gr;ctx.beginPath();ctx.arc(c.x,c.y,cr*3.5,0,TAU);ctx.fill();
+
+  // Membrane ring
+  ctx.strokeStyle=`rgba(${r},${g},${b},0.48)`;ctx.lineWidth=1;
+  ctx.shadowBlur=7;ctx.shadowColor=def.col;
+  ctx.beginPath();ctx.arc(c.x,c.y,cr,0,TAU);ctx.stroke();
+  ctx.shadowBlur=0;
+
+  // Cell body
+  const bf=ctx.createRadialGradient(c.x-cr*.22,c.y-cr*.22,0,c.x,c.y,cr);
+  bf.addColorStop(0,`rgba(${r},${g},${b},0.52)`);
+  bf.addColorStop(0.65,`rgba(${r},${g},${b},0.24)`);
+  bf.addColorStop(1,`rgba(${r},${g},${b},0.05)`);
+  ctx.fillStyle=bf;ctx.beginPath();ctx.arc(c.x,c.y,cr,0,TAU);ctx.fill();
+
+  // Nucleus
+  ctx.fillStyle='rgba(0,0,0,0.55)';
+  ctx.beginPath();ctx.arc(c.x,c.y,cr*.34,0,TAU);ctx.fill();
+  ctx.fillStyle=`rgba(${r},${g},${b},0.38)`;
+  ctx.beginPath();ctx.arc(c.x,c.y,cr*.16,0,TAU);ctx.fill();
+
+  // Frozen spikes
+  if(c.type==='frozen'){
+    ctx.save();ctx.strokeStyle=`rgba(${r},${g},${b},0.32)`;
+    ctx.lineWidth=0.8;ctx.setLineDash([1,2]);
+    for(let i=0;i<4;i++){
+      const a=i*Math.PI/2+G.frame*0.007;
+      ctx.beginPath();ctx.moveTo(c.x,c.y);
+      ctx.lineTo(c.x+Math.cos(a)*cr*1.7,c.y+Math.sin(a)*cr*1.7);ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // Division ring (induced cells in nutrient zone)
+  if(c.type==='induced'&&c.nt>220&&c.nt%320<80){
+    const dp=Math.min(1,(c.nt%320)/80);
+    ctx.strokeStyle=`rgba(${r},${g},${b},${0.5*dp})`;ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(c.x,c.y,cr*(1+dp*.8),0,TAU);ctx.stroke();
+  }
+
+  // In-zone highlight
+  if(c.inZone){
+    ctx.strokeStyle=`rgba(200,255,0,0.18)`;ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(c.x,c.y,cr*1.5,0,TAU);ctx.stroke();
+  }
+
+  ctx.globalAlpha=1;
+}
+
+function drawParticles(ctx){
+  G.particles.forEach(p=>{
+    const [r,g,b]=p.col;
+    ctx.globalAlpha=p.life;
+    ctx.fillStyle=`rgb(${r},${g},${b})`;
+    ctx.shadowBlur=6;ctx.shadowColor=`rgb(${r},${g},${b})`;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r*p.life,0,TAU);ctx.fill();
+    ctx.shadowBlur=0;
+  });
+  ctx.globalAlpha=1;
+}
+
+function drawHUD(ctx){
+  // Top bar
+  ctx.fillStyle='rgba(3,5,8,0.88)';
+  ctx.fillRect(0,0,VW,HUD_H);
+  ctx.strokeStyle='rgba(20,40,60,0.9)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(0,HUD_H);ctx.lineTo(VW,HUD_H);ctx.stroke();
+
+  // Left: chapter + level name
+  ctx.textAlign='left';
+  ctx.font=`400 9px 'DM Mono',monospace`;ctx.fillStyle='rgba(74,98,112,0.8)';
+  ctx.fillText(`CAP. ${LVL.chapter} · NIV. ${LVL.num}`,16,14);
+  ctx.font=`700 14px 'Syne',sans-serif`;ctx.fillStyle='rgba(232,240,245,0.9)';
+  ctx.fillText(LVL.name,16,32);
+
+  // Center: timer
+  const secs=Math.ceil(G.timeLeft);
+  const urgent=G.timeLeft<20&&G.phase==='playing';
+  const urgPulse=urgent?0.7+0.3*Math.sin(G.frame*0.18):1;
+  ctx.textAlign='center';
+  ctx.font=`400 8.5px 'DM Mono',monospace`;
+  ctx.fillStyle=urgent?`rgba(255,123,46,${0.5*urgPulse})`:'rgba(74,98,112,0.6)';
+  ctx.fillText(urgent?'☀ SEQUÍA ACTIVA':'⏱ TIEMPO RESTANTE',VW/2,13);
+  ctx.font=`700 22px 'DM Mono',monospace`;
+  ctx.fillStyle=urgent?`rgba(255,123,46,${urgPulse})`:'rgba(200,255,0,0.82)';
+  if(urgent){ctx.shadowBlur=10;ctx.shadowColor='rgba(255,123,46,0.5)';}
+  ctx.fillText(`${String(Math.floor(secs/60)).padStart(2,'0')}:${String(secs%60).padStart(2,'0')}`,VW/2,35);
+  ctx.shadowBlur=0;
+
+  // Right: fichas usadas + ORDER + VIAB bars
+  ctx.textAlign='right';
+  ctx.font=`400 9px 'DM Mono',monospace`;ctx.fillStyle='rgba(74,98,112,0.6)';
+  ctx.fillText('FICHAS EN CAMPO',VW-16,13);
+  ctx.font=`700 15px 'DM Mono',monospace`;ctx.fillStyle='rgba(200,255,0,0.8)';
+  ctx.fillText(`${G.tilesNet}`,VW-16,31);
+
+  // Bars (bottom of HUD area, actually in field border)
+  const bx=340, by=FIELD_H+6, bw=200, bh=3;
+  const orderVal=G.cells.filter(c=>c.alive&&c.x>LVL.bx).length/Math.max(1,G.cells.filter(c=>c.alive).length);
+  const viabVal=Math.min(1,G.cellsInZone/LVL.targetN);
+
+  ctx.textAlign='left';
+  ctx.font=`400 8px 'DM Mono',monospace`;ctx.fillStyle='rgba(74,98,112,0.6)';
+  ctx.fillText('ORDEN',bx,by+8);
+  ctx.fillStyle='rgba(20,40,60,0.9)';ctx.fillRect(bx+48,by,bw,bh);
+  ctx.fillStyle='#3a9eff';ctx.fillRect(bx+48,by,bw*orderVal,bh);
+  ctx.textAlign='right';ctx.fillStyle='rgba(58,158,255,0.65)';
+  ctx.fillText(`${Math.round(orderVal*100)}%`,bx+48+bw+24,by+8);
+
+  ctx.textAlign='left';ctx.fillStyle='rgba(74,98,112,0.6)';
+  ctx.fillText('VIAB.',bx,by+20);
+  ctx.fillStyle='rgba(20,40,60,0.9)';ctx.fillRect(bx+48,by+12,bw,bh);
+  ctx.fillStyle='#00d4c8';ctx.fillRect(bx+48,by+12,bw*viabVal,bh);
+  ctx.textAlign='right';ctx.fillStyle='rgba(0,212,200,0.65)';
+  ctx.fillText(`${Math.round(viabVal*100)}%`,bx+48+bw+24,by+20);
+}
+
+function drawHand(ctx){
+  // Background
+  ctx.fillStyle='rgba(5,7,10,0.94)';
+  ctx.fillRect(0,HAND_Y,VW,HAND_H);
+  ctx.strokeStyle='rgba(20,38,56,0.85)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(0,HAND_Y);ctx.lineTo(VW,HAND_Y);ctx.stroke();
+
+  // Labels
+  ctx.textAlign='left';ctx.font=`400 8px 'DM Mono',monospace`;
+  ctx.fillStyle='rgba(74,98,112,0.55)';
+  ctx.fillText('FICHAS DE SEÑAL — arrastra al campo',16,HAND_Y+11);
+  ctx.textAlign='right';ctx.fillStyle='rgba(74,98,112,0.35)';
+  ctx.fillText('clic derecho sobre ficha → retirar  ·  R → reiniciar',VW-16,HAND_Y+11);
+
+  // Hint arrow (first time)
+  if(!G.firstTile&&G.hintAlpha>0&&G.phase==='playing'){
+    ctx.globalAlpha=G.hintAlpha*0.6;
+    ctx.textAlign='center';ctx.font=`400 11px 'DM Mono',monospace`;
+    ctx.fillStyle='rgba(200,255,0,0.8)';
+    ctx.fillText('↑  arrastra una ficha al campo de juego  ↑',VW/2,HAND_Y+108);
+    ctx.globalAlpha=1;
+  }
+
+  G.hand.forEach((card,i)=>drawCard(ctx,card));
+}
+
+function drawCard(ctx,card){
+  const sd=SDEF[card.type];
+  const [r,g,b]=sd.rgb;
+  const {x,y,w,h}=card;
+  const dep=card.count<=0;
+  const isDragging=G.drag.on&&G.drag.hi===G.hand.indexOf(card);
+
+  ctx.globalAlpha=dep?0.28:(isDragging?0.5:1);
+
+  // Shadow glow
+  if(!dep&&!isDragging){
+    ctx.shadowBlur=12;ctx.shadowColor=`rgba(${r},${g},${b},0.12)`;
+  }
+
+  // Card body
+  ctx.fillStyle='#0c111a';
+  rrect(ctx,x,y,w,h,4);ctx.fill();
+
+  ctx.strokeStyle=`rgba(${r},${g},${b},${dep?0.1:0.3})`;ctx.lineWidth=1;
+  rrect(ctx,x,y,w,h,4);ctx.stroke();
+
+  // Top accent bar
+  if(!dep){
+    ctx.fillStyle=sd.col;
+    rrect(ctx,x,y,w,3,4);ctx.fill();
+  }
+
+  ctx.shadowBlur=0;
+
+  // Icon circle
+  const icx=x+w/2, icy=y+34, icr=18;
+  ctx.fillStyle=`rgba(${r},${g},${b},0.08)`;
+  ctx.beginPath();ctx.arc(icx,icy,icr,0,TAU);ctx.fill();
+  ctx.strokeStyle=`rgba(${r},${g},${b},0.25)`;ctx.lineWidth=1;
+  ctx.beginPath();ctx.arc(icx,icy,icr,0,TAU);ctx.stroke();
+
+  // Icon drawing
+  sd.icon(ctx,icx,icy,dep?'rgba(74,98,112,0.4)':sd.col);
+
+  // Name
+  ctx.textAlign='center';
+  ctx.font=`700 8px 'DM Mono',monospace`;
+  ctx.fillStyle=dep?'rgba(74,98,112,0.5)':'rgba(232,240,245,0.9)';
+  ctx.fillText(sd.name,icx,y+59);
+
+  // Bio
+  ctx.font=`300 6.5px 'DM Mono',monospace`;
+  ctx.fillStyle=dep?'rgba(74,98,112,0.3)':`rgba(${r},${g},${b},0.48)`;
+  ctx.fillText(sd.bio,icx,y+69);
+
+  // Count badge
+  if(card.count>0){
+    ctx.fillStyle=`rgba(${r},${g},${b},0.12)`;
+    ctx.beginPath();ctx.arc(x+w-13,y+13,11,0,TAU);ctx.fill();
+    ctx.strokeStyle=`rgba(${r},${g},${b},0.3)`;ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(x+w-13,y+13,11,0,TAU);ctx.stroke();
+    ctx.font=`700 9px 'DM Mono',monospace`;ctx.fillStyle=sd.col;
+    ctx.fillText(`×${card.count}`,x+w-13,y+17);
+  } else {
+    ctx.font=`400 7px 'DM Mono',monospace`;
+    ctx.fillStyle='rgba(74,98,112,0.5)';
+    ctx.fillText('AGOTADA',icx,y+80);
+  }
+
+  ctx.globalAlpha=1;
+}
+
+function drawGhost(ctx){
+  const type=G.drag.type, gx=G.drag.cx, gy=G.drag.cy;
+  const sd=SDEF[type];
+  const [r,g,b]=sd.rgb;
+  const inField=gy<FIELD_H&&gy>HUD_H;
+
+  ctx.globalAlpha=0.78;
+
+  // Zone preview circle
+  const gr=ctx.createRadialGradient(gx,gy,0,gx,gy,sd.r);
+  gr.addColorStop(0,`rgba(${r},${g},${b},0.13)`);
+  gr.addColorStop(1,`rgba(${r},${g},${b},0)`);
+  ctx.fillStyle=gr;ctx.beginPath();ctx.arc(gx,gy,sd.r,0,TAU);ctx.fill();
+
+  ctx.save();ctx.setLineDash([3,6]);
+  ctx.strokeStyle=`rgba(${r},${g},${b},${inField?0.5:0.2})`;ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(gx,gy,sd.r,0,TAU);ctx.stroke();
+  ctx.restore();
+
+  // Mini badge
+  const bw=82,bh=26;
+  ctx.fillStyle='rgba(3,5,8,0.92)';
+  rrect(ctx,gx-bw/2,gy-16,bw,bh,3);ctx.fill();
+  ctx.strokeStyle=`rgba(${r},${g},${b},0.5)`;ctx.lineWidth=1.5;
+  rrect(ctx,gx-bw/2,gy-16,bw,bh,3);ctx.stroke();
+  ctx.fillStyle=sd.col;rrect(ctx,gx-bw/2,gy-16,bw,2.5,3);ctx.fill();
+  ctx.textAlign='center';ctx.font=`700 8px 'DM Mono',monospace`;
+  ctx.fillStyle='rgba(232,240,245,0.9)';ctx.fillText(sd.name,gx,gy-2);
+
+  // "Suelta aquí" / "Fuera del campo" indicator
+  if(!inField){
+    ctx.font=`400 9px 'DM Mono',monospace`;
+    ctx.fillStyle='rgba(255,80,80,0.7)';
+    ctx.fillText('↑ suelta en el campo',gx,gy+20);
+  }
+
+  ctx.globalAlpha=1;
+}
+
+function drawWin(ctx){
+  const t=G.endT, fade=Math.min(1,t*1.8);
+  ctx.fillStyle=`rgba(3,5,8,${0.78*fade})`;
+  ctx.fillRect(0,0,VW,VH);
+
+  drawParticles(ctx);
+
+  ctx.globalAlpha=fade;ctx.textAlign='center';
+
+  // Stars
+  const sy=VH/2-95;
+  for(let i=0;i<3;i++){
+    const sx=VW/2+(i-1)*60;
+    const filled=i<G.stars;
+    const delay=Math.min(1,Math.max(0,(t-0.2-i*0.15)*3));
+    ctx.globalAlpha=fade*delay;
+    ctx.font=`${filled?52:44}px serif`;
+    ctx.fillStyle=filled?'#c8ff00':'rgba(40,56,72,0.6)';
+    if(filled){ctx.shadowBlur=22;ctx.shadowColor='rgba(200,255,0,0.7)';}
+    ctx.fillText(filled?'★':'☆',sx,sy);
+    ctx.shadowBlur=0;
+  }
+  ctx.globalAlpha=fade;
+
+  // Title
+  ctx.font=`800 48px 'Syne',sans-serif`;
+  ctx.fillStyle='#c8ff00';ctx.shadowBlur=28;ctx.shadowColor='rgba(200,255,0,0.45)';
+  ctx.fillText('ECLOSIÓN',VW/2,VH/2-20);ctx.shadowBlur=0;
+
+  ctx.font=`400 14px 'DM Mono',monospace`;
+  ctx.fillStyle='rgba(232,240,245,0.55)';
+  ctx.fillText(`${G.cellsInZone} células autoorganizadas en el objetivo`,VW/2,VH/2+16);
+
+  ctx.font=`400 11px 'DM Mono',monospace`;
+  ctx.fillStyle='rgba(200,255,0,0.38)';
+  ctx.fillText(`fichas utilizadas: ${G.tilesNet}`,VW/2,VH/2+40);
+
+  // Stars explanation
+  const starMsgs=['','· Eficiencia máxima','· Estrategia sólida','· Objetivo alcanzado'];
+  if(G.stars>0){
+    ctx.font=`400 11px 'DM Mono',monospace`;
+    ctx.fillStyle='rgba(200,255,0,0.5)';
+    ctx.fillText(starMsgs[G.stars],VW/2,VH/2+60);
+  }
+
+  ctx.font=`400 9px 'DM Mono',monospace`;
+  ctx.fillStyle=`rgba(74,98,112,${0.5+0.3*Math.abs(Math.sin(G.frame*0.06))})`;
+  ctx.fillText('· clic o R para reiniciar ·',VW/2,VH/2+90);
+
+  ctx.globalAlpha=1;
+}
+
+function drawLose(ctx){
+  const t=G.endT, fade=Math.min(1,t*1.8);
+  ctx.fillStyle=`rgba(3,5,8,${0.82*fade})`;
+  ctx.fillRect(0,0,VW,VH);
+  ctx.globalAlpha=fade;ctx.textAlign='center';
+
+  ctx.font=`800 48px 'Syne',sans-serif`;
+  ctx.fillStyle='rgba(255,123,46,0.9)';ctx.shadowBlur=20;ctx.shadowColor='rgba(255,100,0,0.4)';
+  ctx.fillText('SEQUÍA',VW/2,VH/2-20);ctx.shadowBlur=0;
+
+  ctx.font=`400 14px 'DM Mono',monospace`;
+  ctx.fillStyle='rgba(232,240,245,0.48)';
+  ctx.fillText(`Solo ${G.cellsInZone} de ${LVL.targetN} células alcanzaron el objetivo`,VW/2,VH/2+16);
+
+  ctx.font=`400 11px 'DM Mono',monospace`;
+  ctx.fillStyle='rgba(255,123,46,0.35)';
+  ctx.fillText('Intenta colocar las fichas con más estrategia',VW/2,VH/2+40);
+
+  ctx.font=`400 9px 'DM Mono',monospace`;
+  ctx.fillStyle=`rgba(74,98,112,${0.5+0.3*Math.abs(Math.sin(G.frame*0.06))})`;
+  ctx.fillText('· clic o R para reiniciar ·',VW/2,VH/2+76);
+  ctx.globalAlpha=1;
+}
+
+// ── ICON DRAWING HELPERS ──────────────────────────────────────────────────────
+function drawIconArrowsIn(ctx,cx,cy,col){
+  ctx.save();ctx.strokeStyle=col;ctx.fillStyle=col;
+  ctx.lineWidth=1.6;ctx.lineCap='round';
+  for(let i=0;i<4;i++){
+    const a=i*Math.PI/2+Math.PI/4;
+    const x1=cx+Math.cos(a)*13, y1=cy+Math.sin(a)*13;
+    const x2=cx+Math.cos(a)*5,  y2=cy+Math.sin(a)*5;
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+    const ha=a+Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(x2+Math.cos(ha-.5)*5, y2+Math.sin(ha-.5)*5);
+    ctx.lineTo(x2,y2);
+    ctx.lineTo(x2+Math.cos(ha+.5)*5, y2+Math.sin(ha+.5)*5);
+    ctx.fill();
+  }
+  // Center dot
+  ctx.beginPath();ctx.arc(cx,cy,2.5,0,TAU);ctx.fill();
+  ctx.restore();
+}
+
+function drawIconArrowsOut(ctx,cx,cy,col){
+  ctx.save();ctx.strokeStyle=col;ctx.fillStyle=col;
+  ctx.lineWidth=1.6;ctx.lineCap='round';
+  for(let i=0;i<4;i++){
+    const a=i*Math.PI/2+Math.PI/4;
+    const x1=cx+Math.cos(a)*4, y1=cy+Math.sin(a)*4;
+    const x2=cx+Math.cos(a)*13, y2=cy+Math.sin(a)*13;
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x2+Math.cos(a-.5)*5, y2+Math.sin(a-.5)*5);
+    ctx.lineTo(x2,y2);
+    ctx.lineTo(x2+Math.cos(a+.5)*5, y2+Math.sin(a+.5)*5);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawIconPlus(ctx,cx,cy,col){
+  ctx.save();ctx.strokeStyle=col;ctx.lineWidth=2.8;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(cx-9,cy);ctx.lineTo(cx+9,cy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,cy-9);ctx.lineTo(cx,cy+9);ctx.stroke();
+  ctx.strokeStyle=col.replace('0.08','0.06');ctx.lineWidth=1;ctx.globalAlpha*=0.4;
+  ctx.beginPath();ctx.arc(cx,cy,14,0,TAU);ctx.stroke();
+  ctx.restore();
+}
+
+function drawIconPause(ctx,cx,cy,col){
+  ctx.save();ctx.fillStyle=col;
+  ctx.fillRect(cx-8,cy-10,5.5,20);
+  ctx.fillRect(cx+2.5,cy-10,5.5,20);
+  ctx.restore();
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function rrect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath();
+}
+
+// ── INPUT ─────────────────────────────────────────────────────────────────────
+function onDown({x,y}, btn=0){
+  // Win/lose: restart on click
+  if(G.phase==='win'||G.phase==='lose'){ restart(); return; }
+
+  // Intro: start on click
+  if(G.phase==='intro'){ G.phase='playing'; return; }
+
+  // Check hovering placed tile badge → remove on left click
+  if(btn===0 && G.hover.ti>=0){ removeTile(G.hover.ti); return; }
+
+  // Check hand card drag
+  if(y>HAND_Y){
+    for(let i=0;i<G.hand.length;i++){
+      const c=G.hand[i];
+      if(c.count>0&&x>=c.x&&x<=c.x+c.w&&y>=c.y&&y<=c.y+c.h){
+        G.drag={on:true,type:c.type,hi:i,cx:x,cy:y};
+        return;
+      }
+    }
+  }
+}
+
+function onMove({x,y}){
+  if(G.drag.on){ G.drag.cx=x; G.drag.cy=y; }
+
+  // Hover detection for placed tiles
+  G.hover.ti=-1;
+  if(!G.drag.on){
+    G.tiles.forEach((t,i)=>{
+      const sd=SDEF[t.type];
+      const bw=84,bh=26;
+      const bx=t.x-bw/2, by=t.y-sd.r-46;
+      if(x>=bx-12&&x<=bx+bw+18&&y>=by-4&&y<=by+bh+4) G.hover.ti=i;
+    });
+  }
+}
+
+function onUp({x,y}){
+  if(!G.drag.on) return;
+  const {type,hi}=G.drag;
+
+  if(y<FIELD_H && y>HUD_H+10 && G.phase==='playing'){
+    placeTile(type,x,y);
+    G.hand[hi].count--;
+    if(!G.firstTile) G.firstTile=true;
+  }
+  G.drag={on:false,type:null,hi:-1,cx:0,cy:0};
+}
+
+function onRight({x,y}){
+  if(G.hover.ti>=0) removeTile(G.hover.ti);
+}
+
+function placeTile(type,x,y){
+  G.tiles.push({type,x,y,ph:Math.random()*TAU});
+  G.tilesNet++;
+  G.tilesPlaced++;
+  const sd=SDEF[type];
+  addRipple(x,y,sd.col.replace(')',',0.6)').replace('rgb','rgba'),sd.r*0.8);
+  // Extra ripple rings
+  setTimeout(()=>addRipple(x,y,sd.col.replace(')',',0.3)').replace('rgb','rgba'),sd.r*1.1),180);
+}
+
+function removeTile(idx){
+  const t=G.tiles[idx];
+  const card=G.hand.find(c=>c.type===t.type);
+  if(card) card.count=Math.min(card.orig,card.count+1);
+  G.tiles.splice(idx,1);
+  G.tilesNet=Math.max(0,G.tilesNet-1);
+  G.tilesPlaced=Math.max(0,G.tilesPlaced-1);
+  G.hover.ti=-1;
+}
+
+function restart(){ initLevel(); G.lastTick=performance.now(); }
+
+// ── MAIN LOOP ─────────────────────────────────────────────────────────────────
+function loop(ts){
+  update(ts);
+  render();
+  requestAnimationFrame(loop);
+}
+
+window.addEventListener('DOMContentLoaded', setup);
+</script>
+</body>
+</html>
